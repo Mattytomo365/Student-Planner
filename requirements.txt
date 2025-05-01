@@ -1,0 +1,17 @@
+altgraph==0.17.4
+APScheduler==3.11.0
+macholib==1.16.3
+numpy==2.2.5
+packaging==25.0
+pandas==2.2.3
+plyer==2.1.0
+pyinstaller==6.13.0
+pyinstaller-hooks-contrib==2025.3
+python-dateutil==2.9.0.post0
+pytz==2025.2
+setuptools==80.1.0
+six==1.17.0
+SQLAlchemy==2.0.40
+typing_extensions==4.13.2
+tzdata==2025.2
+tzlocal==5.3.1
