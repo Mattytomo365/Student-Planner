@@ -40,3 +40,22 @@ def get_upcoming_events(creds, max_results=10):
     except HttpError as error:
         print(f"An error occurred: {error}")
         return []
+
+def add_task(creds):
+    pass
+
+def edit_task(creds):
+    pass
+
+def delete_task(creds):
+    pass
+
+def add_assignment(creds):
+    pass
+
+def view_key():
+    pass
+
+def add_modules(module_1, module_2, module_3):
+    # Save modules to a json file
+    pass
