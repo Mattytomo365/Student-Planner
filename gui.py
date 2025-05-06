@@ -11,8 +11,6 @@ main.title("My GUI")
 main.configure(bg="white")
 main.resizable(False, False)
 
-#main.eval('tk::PlaceWindow . center')
-
 creds = authentication()
 
 style = ttk.Style(main)
@@ -141,7 +139,7 @@ def view_key():
 def add_modules_popup():
     modules_popup = tk.Toplevel(main)
     modules_popup.title("Add Modules")
-    modules_popup.geometry("400x400")
+    modules_popup.geometry("400x350")
     modules_popup.configure(bg="white")
     modules_popup.resizable(False, False)
 
