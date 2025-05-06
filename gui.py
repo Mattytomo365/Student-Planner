@@ -99,7 +99,7 @@ def add_task_popup():
 
     # Recurring tasks?
 
-    add_task_button = ttk.Button(add_popup, text="Add", style="Green.TButton", command=add_task(title_entry.get(), desc_entry.get(), location_entry.get(), module_var.get(), date_chooser.get_date()))
+    add_task_button = ttk.Button(add_popup, text="Add", style="Green.TButton", command=lambda: add_task(title_entry.get(), desc_entry.get(), location_entry.get(), module_var.get(), date_chooser.get_date()))
     add_task_button.place(x=200, y=350, anchor=tk.CENTER)
 
 def edit_task_popup():
@@ -163,7 +163,7 @@ def add_modules_popup():
     module_3_entry = tk.Entry(modules_popup, font=('Arial', 15), bg="white", fg="black")
     module_3_entry.place(x=250, y=230, anchor=tk.CENTER)
 
-    add_modules_button = ttk.Button(modules_popup, text="Save", style="Green.TButton", command=add_modules(module_1_entry.get(), module_2_entry.get(), module_3_entry.get()))
+    add_modules_button = ttk.Button(modules_popup, text="Save", style="Green.TButton", command=lambda: add_modules(module_1_entry.get(), module_2_entry.get(), module_3_entry.get()))
     add_modules_button.place(x=200, y=300, anchor=tk.CENTER)
 
 # Buttons
