@@ -94,13 +94,12 @@ def add_task_popup():
     dropdown_label.place(x=100, y=250, anchor=tk.CENTER)
     module_var = tk.StringVar(add_popup)
     module_chosen = ttk.Combobox(add_popup, width=19, textvariable=module_var)
-    module_chosen['values'] = ('Module 1', 'Module 2', 'Module 3') # replace with modules from json file
-    module_chosen.place(x=250, y=250, anchor=tk.CENTER)
 
     with open('modules.json', 'r') as file:
-     modules = json.load(file)
-     for module in modules:
-         module_chosen['values'] = module['profile_name']
+        modules = json.load(file)
+        module_chosen['values'] = (modules['10'], modules['9'], modules['5'])
+
+    module_chosen.place(x=250, y=250, anchor=tk.CENTER)
 
     date_label = tk.Label(add_popup, text="Date", font=('Arial', 15), bg="white", fg="black")
     date_label.place(x=100, y=300, anchor=tk.CENTER)
@@ -109,7 +108,7 @@ def add_task_popup():
 
     # Recurring tasks?
 
-    add_task_button = ttk.Button(add_popup, text="Add", style="Green.TButton", command=lambda: add_task(title_entry.get(), desc_entry.get(), location_entry.get(), module_var.get(), date_chooser.get_date(), refresh_main_window(), add_task_popup.destroy()))
+    add_task_button = ttk.Button(add_popup, text="Add", style="Green.TButton", command=lambda: add_task(creds, title_entry.get(), desc_entry.get(), location_entry.get(), module_var.get(), date_chooser.get_date()))
     add_task_button.place(x=200, y=350, anchor=tk.CENTER)
 
 def edit_task_popup():
@@ -148,7 +147,7 @@ def view_key():
     header = tk.Label(key_popup, text= "Key", font=('Arial', 30), bg="white", fg="Green")
     header.place(x=200, y=30, anchor=tk.CENTER)
 
-def add_modules_popup(button_to_disable):
+def add_modules_popup(button_to_disable, button_to_enable):
 
     modules_popup = tk.Toplevel(main)
     modules_popup.title("Add Modules")
@@ -179,11 +178,14 @@ def add_modules_popup(button_to_disable):
         refresh_main_window()
         modules_popup.destroy()
         button_to_disable.config(state="disabled")
+        button_to_enable.config(state="normal")
 
     add_modules_button = ttk.Button(modules_popup, text="Save", style="Green.TButton", command=save_modules)
     add_modules_button.place(x=200, y=300, anchor=tk.CENTER)
 
 # Buttons
+
+file_exists_flag = file_exists("modules.json")
 
 task_actions_frame = tk.Frame(main, width=40, height=20, bg = "white", highlightbackground="black", highlightthickness=1)
 task_actions_frame.grid(row=1, column=1, sticky="nsw", padx=10, pady=50)
@@ -191,7 +193,7 @@ task_actions_frame.grid(row=1, column=1, sticky="nsw", padx=10, pady=50)
 task_header = tk.Label(task_actions_frame, text="Task Actions", font=("Arial", 20), bg="white", fg="black")
 task_header.grid(row=0, column=1, padx=10, pady=10)
 
-add_button = ttk.Button(task_actions_frame, text="Add Task", style="Green.TButton", command=add_task_popup) # Only activate if modules have been added
+add_button = ttk.Button(task_actions_frame, text="Add Task", style="Green.TButton", command=lambda: add_task_popup(), state="disabled" if not file_exists_flag else "normal")
 add_button.grid(row=1, column=1, padx=10, pady=10)
 
 edit_button = ttk.Button(task_actions_frame, text="Edit Task", style="Green.TButton", command=edit_task_popup)
@@ -209,9 +211,7 @@ other_header.grid(row=0, column=1, padx=10, pady=10)
 add_assignment_button = ttk.Button(other_action_frame, text="Add Assignment", style="Green.TButton", command=add_assignment_popup)
 add_assignment_button.grid(row=1, column=1, padx=10, pady=10)
 
-file_exists_flag = file_exists("modules.json")
-
-add_modules_button = ttk.Button(other_action_frame, text="Add Modules", style="Green.TButton", command=lambda: add_modules_popup(add_modules_button), state="disabled" if file_exists_flag else "normal")
+add_modules_button = ttk.Button(other_action_frame, text="Add Modules", style="Green.TButton", command=lambda: add_modules_popup(add_modules_button, add_button), state="disabled" if file_exists_flag else "normal")
 add_modules_button.grid(row=1, column=2, padx=10, pady=10)
 
 view_key_button = ttk.Button(other_action_frame, text="View Key", style="Green.TButton", command=view_key)

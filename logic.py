@@ -64,9 +64,9 @@ def add_modules(module_1, module_2, module_3):
     Adds the modules to a JSON file.
     """
     dictionary = {
-        f"{module_1}": "10",
-        f"{module_2}": "9",
-        f"{module_3}": "5"
+        "10" : f"{module_1}",
+        "9" : f"{module_2}",
+        "5" : f"{module_3}"
     }
 
     # Serializing json
