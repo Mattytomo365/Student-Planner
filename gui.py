@@ -3,6 +3,7 @@ from tkinter import ttk
 from tkcalendar import DateEntry
 from logic import *
 from main import *
+import os
 
 main = tk.Tk()
 
@@ -58,6 +59,12 @@ progress.grid(row=3, column=0, padx=0, pady=0)
 
 # Popup windows
 
+def refresh_main_window():
+    """
+    Function to refresh or update the main window after saving modules.
+    """
+    main.update_idletasks()  # Refresh the main window
+
 def add_task_popup():
     add_popup = tk.Toplevel(main)
     add_popup.title("Add Task")
@@ -90,6 +97,11 @@ def add_task_popup():
     module_chosen['values'] = ('Module 1', 'Module 2', 'Module 3') # replace with modules from json file
     module_chosen.place(x=250, y=250, anchor=tk.CENTER)
 
+    with open('modules.json', 'r') as file:
+     modules = json.load(file)
+     for module in modules:
+         module_chosen['values'] = module['profile_name']
+
     date_label = tk.Label(add_popup, text="Date", font=('Arial', 15), bg="white", fg="black")
     date_label.place(x=100, y=300, anchor=tk.CENTER)
     date_chooser = DateEntry(add_popup, width=19, background='green', foreground='white', borderwidth=2, date_pattern='dd-mm-yyyy')
@@ -97,7 +109,7 @@ def add_task_popup():
 
     # Recurring tasks?
 
-    add_task_button = ttk.Button(add_popup, text="Add", style="Green.TButton", command=lambda: add_task(title_entry.get(), desc_entry.get(), location_entry.get(), module_var.get(), date_chooser.get_date()))
+    add_task_button = ttk.Button(add_popup, text="Add", style="Green.TButton", command=lambda: add_task(title_entry.get(), desc_entry.get(), location_entry.get(), module_var.get(), date_chooser.get_date(), refresh_main_window(), add_task_popup.destroy()))
     add_task_button.place(x=200, y=350, anchor=tk.CENTER)
 
 def edit_task_popup():
@@ -136,7 +148,8 @@ def view_key():
     header = tk.Label(key_popup, text= "Key", font=('Arial', 30), bg="white", fg="Green")
     header.place(x=200, y=30, anchor=tk.CENTER)
 
-def add_modules_popup():
+def add_modules_popup(button_to_disable):
+
     modules_popup = tk.Toplevel(main)
     modules_popup.title("Add Modules")
     modules_popup.geometry("400x350")
@@ -161,7 +174,13 @@ def add_modules_popup():
     module_3_entry = tk.Entry(modules_popup, font=('Arial', 15), bg="white", fg="black")
     module_3_entry.place(x=250, y=230, anchor=tk.CENTER)
 
-    add_modules_button = ttk.Button(modules_popup, text="Save", style="Green.TButton", command=lambda: (add_modules(module_1_entry.get(), module_2_entry.get(), module_3_entry.get()), modules_popup.destroy()))
+    def save_modules():
+        add_modules(module_1_entry.get(), module_2_entry.get(), module_3_entry.get())
+        refresh_main_window()
+        modules_popup.destroy()
+        button_to_disable.config(state="disabled")
+
+    add_modules_button = ttk.Button(modules_popup, text="Save", style="Green.TButton", command=save_modules)
     add_modules_button.place(x=200, y=300, anchor=tk.CENTER)
 
 # Buttons
@@ -172,7 +191,7 @@ task_actions_frame.grid(row=1, column=1, sticky="nsw", padx=10, pady=50)
 task_header = tk.Label(task_actions_frame, text="Task Actions", font=("Arial", 20), bg="white", fg="black")
 task_header.grid(row=0, column=1, padx=10, pady=10)
 
-add_button = ttk.Button(task_actions_frame, text="Add Task", style="Green.TButton", command=add_task_popup)
+add_button = ttk.Button(task_actions_frame, text="Add Task", style="Green.TButton", command=add_task_popup) # Only activate if modules have been added
 add_button.grid(row=1, column=1, padx=10, pady=10)
 
 edit_button = ttk.Button(task_actions_frame, text="Edit Task", style="Green.TButton", command=edit_task_popup)
@@ -190,16 +209,14 @@ other_header.grid(row=0, column=1, padx=10, pady=10)
 add_assignment_button = ttk.Button(other_action_frame, text="Add Assignment", style="Green.TButton", command=add_assignment_popup)
 add_assignment_button.grid(row=1, column=1, padx=10, pady=10)
 
-file_exists = file_exists("modules.json")
+file_exists_flag = file_exists("modules.json")
 
-if file_exists:
-    add_modules_button = ttk.Button(other_action_frame, text="Add Modules", style="Green.TButton", command=add_modules_popup, state="disabled") # deactivate if json file is populated
-    add_modules_button.grid(row=1, column=2, padx=10, pady=10)
-else:
-    add_modules_button = ttk.Button(other_action_frame, text="Add Modules", style="Green.TButton", command=add_modules_popup) # deactivate if json file is populated
-    add_modules_button.grid(row=1, column=2, padx=10, pady=10)
+add_modules_button = ttk.Button(other_action_frame, text="Add Modules", style="Green.TButton", command=lambda: add_modules_popup(add_modules_button), state="disabled" if file_exists_flag else "normal")
+add_modules_button.grid(row=1, column=2, padx=10, pady=10)
 
 view_key_button = ttk.Button(other_action_frame, text="View Key", style="Green.TButton", command=view_key)
 view_key_button.grid(row=2, column=1, padx=10, pady=10)
+
+
 
 main.mainloop()
