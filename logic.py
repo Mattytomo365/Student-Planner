@@ -2,7 +2,7 @@ import datetime
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
-def get_upcoming_events(creds, max_results=10):
+def get_upcoming_events(creds):
     """
     Fetches the next 10 upcoming events from the user's primary Google Calendar.
     """
@@ -11,12 +11,14 @@ def get_upcoming_events(creds, max_results=10):
 
         # Call the Calendar API
         now = datetime.datetime.now(tz=datetime.timezone.utc).isoformat() # Gets current time in UTC format, converting it to a strning that Google Caldendar understands.
+        tomorrow = (datetime.datetime.now(tz=datetime.timezone.utc) + datetime.timedelta(days=1)).isoformat() # Gets the time for tomorrow in UTC format.
         print("Getting the upcoming 10 events")
         events_result = ( # Main API request to get the next 10 events.
          service.events()
             .list(
                 calendarId="primary", # accesses the user's primary calendar.
                 timeMin=now, # Only return events that start after the current time.
+                timeMax=tomorrow, # Only return events that start before the next day.
                 maxResults=10, 
                 singleEvents=True, # Returns only single events, not recurring events.
                 orderBy="startTime",
@@ -26,8 +28,7 @@ def get_upcoming_events(creds, max_results=10):
         events = events_result.get("items", []) # Gets the list of events from the API response.
 
         if not events:
-            print("No upcoming events found.")
-            return []
+            return ["No events today"]
 
      # Returns the start and name of the next 10 events
         results = []
