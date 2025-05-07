@@ -40,7 +40,7 @@ checklist_frame = tk.Frame(main, width=30, height=20, bg = "white", highlightbac
 checklist_frame.grid(row=1, column=0, sticky="nsw", padx=50, pady=50, rowspan=2)
 
 checklist_header = tk.Label(checklist_frame, text="To-Do", font=("Arial", 20), bg="white", fg="green")
-checklist_header.grid(row=0, column=0, padx=10, pady=10, sticky="nsw")
+checklist_header.grid(row=0, column=0, padx=10, pady=10, sticky="nsw") # Checked boxes need to be saved!
 
 task_vars = []
 
@@ -161,7 +161,7 @@ def add_modules_popup():
     module_3_entry = tk.Entry(modules_popup, font=('Arial', 15), bg="white", fg="black")
     module_3_entry.place(x=250, y=230, anchor=tk.CENTER)
 
-    add_modules_button = ttk.Button(modules_popup, text="Save", style="Green.TButton", command=lambda: add_modules(module_1_entry.get(), module_2_entry.get(), module_3_entry.get()))
+    add_modules_button = ttk.Button(modules_popup, text="Save", style="Green.TButton", command=lambda: (add_modules(module_1_entry.get(), module_2_entry.get(), module_3_entry.get()), modules_popup.destroy()))
     add_modules_button.place(x=200, y=300, anchor=tk.CENTER)
 
 # Buttons
@@ -190,8 +190,14 @@ other_header.grid(row=0, column=1, padx=10, pady=10)
 add_assignment_button = ttk.Button(other_action_frame, text="Add Assignment", style="Green.TButton", command=add_assignment_popup)
 add_assignment_button.grid(row=1, column=1, padx=10, pady=10)
 
-add_modules_button = ttk.Button(other_action_frame, text="Add Modules", style="Green.TButton", command=add_modules_popup) # deactivate if json file is populated
-add_modules_button.grid(row=1, column=2, padx=10, pady=10)
+file_exists = file_exists("modules.json")
+
+if file_exists:
+    add_modules_button = ttk.Button(other_action_frame, text="Add Modules", style="Green.TButton", command=add_modules_popup, state="disabled") # deactivate if json file is populated
+    add_modules_button.grid(row=1, column=2, padx=10, pady=10)
+else:
+    add_modules_button = ttk.Button(other_action_frame, text="Add Modules", style="Green.TButton", command=add_modules_popup) # deactivate if json file is populated
+    add_modules_button.grid(row=1, column=2, padx=10, pady=10)
 
 view_key_button = ttk.Button(other_action_frame, text="View Key", style="Green.TButton", command=view_key)
 view_key_button.grid(row=2, column=1, padx=10, pady=10)

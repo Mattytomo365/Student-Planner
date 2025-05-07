@@ -2,6 +2,7 @@ import datetime
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 import json
+import os
 
 def get_upcoming_events(creds):
     """
@@ -59,6 +60,9 @@ def view_key():
     pass
 
 def add_modules(module_1, module_2, module_3):
+    """"
+    Adds the modules to a JSON file.
+    """
     dictionary = {
         f"{module_1}": "10",
         f"{module_2}": "9",
@@ -71,3 +75,13 @@ def add_modules(module_1, module_2, module_3):
     # Writing to sample.json
     with open("modules.json", "w") as outfile:
         outfile.write(json_object)
+
+def file_exists(path):
+    """
+    Checks if a file exists at the given path.
+    """
+    is_exists = os.path.exists(path)
+    if is_exists:
+        return True
+    else:
+        return False
