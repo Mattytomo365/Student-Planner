@@ -1,6 +1,7 @@
 import datetime
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
+import json
 
 def get_upcoming_events(creds):
     """
@@ -58,5 +59,15 @@ def view_key():
     pass
 
 def add_modules(module_1, module_2, module_3):
-    # Save modules to a json file
-    pass
+    dictionary = {
+        f"{module_1}": "10",
+        f"{module_2}": "9",
+        f"{module_3}": "5"
+    }
+
+    # Serializing json
+    json_object = json.dumps(dictionary, indent=4)
+ 
+    # Writing to sample.json
+    with open("modules.json", "w") as outfile:
+        outfile.write(json_object)
