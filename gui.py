@@ -38,6 +38,23 @@ header.grid(row=0, column=0, columnspan=2, sticky="nsw", padx=210, pady=5)
 
 # Daily checklist
 
+def toggle():
+    """
+    Function to toggle the state of the checkbox and update the progress bar.
+    """
+    checked = 0
+    unchecked = 0
+    total = 0
+
+    for var in task_vars:
+        if var.get():
+            checked += 1
+        else:
+            unchecked += 1
+        total += 1
+
+    progress["value"] = (checked / total) * 100 if total > 0 else 0
+
 events = get_upcoming_events(creds)
 
 checklist_frame = tk.Frame(main, width=30, height=20, bg = "white", highlightbackground="green", highlightthickness=1)
@@ -57,7 +74,7 @@ task_vars = []
 for summary in events:
     var = tk.BooleanVar(value=states.get(summary, False))  # Use the saved state if it exists, otherwise default to False
     task_vars.append(var)
-    checkbox = tk.Checkbutton(checklist_frame, text=summary, variable=var, bg="white", fg="black", width=30, justify="left", anchor="w", selectcolor="green", padx=30)
+    checkbox = tk.Checkbutton(checklist_frame, text=summary, variable=var, bg="white", fg="black", width=30, justify="left", anchor="w", selectcolor="green", padx=3, command=toggle)
     checkbox.grid(row=len(task_vars), column=0, sticky="nsw", padx=30, pady=5)
 
 checked = 0
