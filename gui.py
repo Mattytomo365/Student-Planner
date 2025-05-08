@@ -30,8 +30,11 @@ style.configure("Green.Horizontal.TProgressbar",
 
 # Screen header
 
-header = tk.Label(main, text="Day of the week", font=("Arial", 40), bg="white", fg="green")
-header.grid(row=0, column=0, columnspan=2, sticky="ew", padx=250, pady=5)
+now = datetime.datetime.now()
+day_of_week = now.strftime("%A %d %B")
+
+header = tk.Label(main, text=day_of_week, font=("Arial", 40), bg="white", fg="green")
+header.grid(row=0, column=0, columnspan=2, sticky="nsw", padx=210, pady=5)
 
 # Daily checklist
 
@@ -51,10 +54,22 @@ for summary in events:
     checkbox = tk.Checkbutton(checklist_frame, text=summary, variable=var, bg="white", fg="black", width=30, justify="left", anchor="w", selectcolor="green", padx=30)
     checkbox.grid(row=len(task_vars), column=0, sticky="nsw", padx=30, pady=5)
 
+checked = 0
+unchecked = 0
+total = 0
+
+for var in task_vars:
+    if var.get():
+        checked += 1
+    else:
+        unchecked += 1
+    total += 1
+
+
 # Progress bar
 
 progress = ttk.Progressbar(main, orient="horizontal", length=400, mode="determinate", style="Green.Horizontal.TProgressbar")
-progress["value"] = 50
+progress["value"] = (checked / total) * 100 if total > 0 else 0
 progress.grid(row=3, column=0, padx=0, pady=0)
 
 # Popup windows
@@ -216,6 +231,21 @@ add_modules_button.grid(row=1, column=2, padx=10, pady=10)
 
 view_key_button = ttk.Button(other_action_frame, text="View Key", style="Green.TButton", command=view_key)
 view_key_button.grid(row=2, column=1, padx=10, pady=10)
+
+def save_on_states():
+    """
+    Function to save the state of the main window when it is closed.
+    """
+    with open('checkbox_states.json', 'w') as file:
+        states = [var.get() for var in task_vars]
+        json.dump(states, file)
+
+def on_close():
+    """
+    Function to handle the close event of the main window.
+    """
+    save_on_states()
+    main.destroy()
 
 
 
