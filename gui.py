@@ -46,10 +46,16 @@ checklist_frame.grid(row=1, column=0, sticky="nsw", padx=50, pady=50, rowspan=2)
 checklist_header = tk.Label(checklist_frame, text="To-Do", font=("Arial", 20), bg="white", fg="green")
 checklist_header.grid(row=0, column=0, padx=10, pady=10, sticky="nsw") # Checked boxes need to be saved!
 
+try:
+    with open('checkbox_states.json', 'r') as file:
+        states = json.load(file)
+except FileNotFoundError:
+    states = {}
+
 task_vars = []
 
 for summary in events:
-    var = tk.BooleanVar()
+    var = tk.BooleanVar(value=states.get(summary, False))  # Use the saved state if it exists, otherwise default to False
     task_vars.append(var)
     checkbox = tk.Checkbutton(checklist_frame, text=summary, variable=var, bg="white", fg="black", width=30, justify="left", anchor="w", selectcolor="green", padx=30)
     checkbox.grid(row=len(task_vars), column=0, sticky="nsw", padx=30, pady=5)
@@ -232,21 +238,21 @@ add_modules_button.grid(row=1, column=2, padx=10, pady=10)
 view_key_button = ttk.Button(other_action_frame, text="View Key", style="Green.TButton", command=view_key)
 view_key_button.grid(row=2, column=1, padx=10, pady=10)
 
-def save_on_states():
+def saved_states():
     """
     Function to save the state of the main window when it is closed.
     """
     with open('checkbox_states.json', 'w') as file:
-        states = [var.get() for var in task_vars]
+        states = {summary : var.get() for summary, var in zip(events, task_vars)} # Pairs the summary with the variable, allowing to iterate through the lists simultaneously.
         json.dump(states, file)
 
 def on_close():
     """
     Function to handle the close event of the main window.
     """
-    save_on_states()
+    saved_states()
     main.destroy()
 
 
-
+main.protocol("WM_DELETE_WINDOW", on_close)  # Set the close event handler
 main.mainloop()
