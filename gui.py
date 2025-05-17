@@ -204,6 +204,16 @@ def view_key():
         no_modules_label = tk.Label(modules_frame, text="No modules added", font=('Arial', 15), bg="white", fg="black")
         no_modules_label.grid(row=i, column=0, padx=30, pady=20)
 
+    canvas = tk.Canvas(modules_frame, width=70, height=200, bg="white", highlightbackground="white", highlightthickness=1)
+    canvas.grid(row=0, column=1, padx=20, pady=20, rowspan=3)
+    
+
+    # Draw ovals at different Y positions within the canvas
+    canvas.create_oval(10, 10, 30, 30, fill="green", outline="green")   # top
+    canvas.create_oval(10, 90, 30, 110, fill="blue", outline="blue")     # middle
+    canvas.create_oval(10, 170, 30, 190, fill="yellow", outline="yellow")# bottom
+
+
 
 def add_modules_popup(button_to_disable, button_to_enable):
 
