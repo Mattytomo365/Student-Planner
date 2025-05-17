@@ -91,7 +91,7 @@ for var in task_vars:
 
 # Progress bar
 
-progress = ttk.Progressbar(main, orient="horizontal", length=400, mode="determinate", style="Green.Horizontal.TProgressbar")
+progress = ttk.Progressbar(main, orient="horizontal", length=345, mode="determinate", style="Green.Horizontal.TProgressbar")
 progress["value"] = (checked / total) * 100 if total > 0 else 0
 progress.grid(row=3, column=0, padx=0, pady=0)
 
@@ -184,6 +184,26 @@ def view_key():
     key_popup.resizable(False, False)
     header = tk.Label(key_popup, text= "Key", font=('Arial', 30), bg="white", fg="Green")
     header.place(x=200, y=30, anchor=tk.CENTER)
+
+    # modules = tk.Listbox(key_popup, width=30, height=15, bg="white", fg="black", font=("Arial", 12), highlightbackground="green", highlightthickness=1)
+    # modules.place(x=200, y=220, anchor=tk.CENTER)
+
+    modules_frame = tk.Frame(key_popup, width=30, height=20, bg = "white", highlightbackground="green", highlightthickness=1)
+    modules_frame.place(x=200, y=220, anchor=tk.CENTER)
+
+    i = 0
+
+    if file_exists("modules.json"):
+        with open('modules.json', 'r') as file:
+            modules_data = json.load(file)
+            for module in modules_data.values():
+                module_label = tk.Label(modules_frame, text=module, font=('Arial', 15), bg="white", fg="black")
+                module_label.grid(row=i, column=0, padx=30, pady=20)
+                i += 1
+    else:
+        no_modules_label = tk.Label(modules_frame, text="No modules added", font=('Arial', 15), bg="white", fg="black")
+        no_modules_label.grid(row=i, column=0, padx=30, pady=20)
+
 
 def add_modules_popup(button_to_disable, button_to_enable):
 
