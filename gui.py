@@ -149,7 +149,7 @@ def add_task_popup():
     add_task_button = ttk.Button(add_popup, text="Add", style="Green.TButton", command=lambda: add_task(creds, title_entry.get(), desc_entry.get(), location_entry.get(), module_var.get(), date_chooser.get_date()))
     add_task_button.place(x=200, y=350, anchor=tk.CENTER)
 
-def edit_task_popup():
+def edit_task_popup(events):
     edit_popup = tk.Toplevel(main)
     edit_popup.title("Edit Task")
     edit_popup.geometry("400x400")
@@ -158,14 +158,42 @@ def edit_task_popup():
     header = tk.Label(edit_popup, text= "Edit Task", font=('Arial', 30), bg="white", fg="Green")
     header.place(x=200, y=30, anchor=tk.CENTER)
 
-def delete_task_popup():
+    if events == []:
+        no_events_label = tk.Label(edit_popup, text="No tasks to edit", font=('Arial', 15), bg="white", fg="black")
+        no_events_label.place(x=200, y=100, anchor=tk.CENTER)
+    else:
+        dropdown_label = tk.Label(edit_popup, text="Task", font=('Arial', 15), bg="white", fg="black")
+        dropdown_label.place(x=100, y=100, anchor=tk.CENTER)
+        task_var = tk.StringVar(edit_popup)
+        task_chosen = ttk.Combobox(edit_popup, width=19, textvariable=task_var)
+        task_chosen['values'] = events
+        task_chosen.place(x=250, y=100, anchor=tk.CENTER)
+
+
+
+
+def delete_task_popup(events):
     delete_popup = tk.Toplevel(main)
     delete_popup.title("Delete Task")
-    delete_popup.geometry("400x400")
+    delete_popup.geometry("400x200")
     delete_popup.configure(bg="white")
     delete_popup.resizable(False, False)
     header = tk.Label(delete_popup, text= "Delete Task", font=('Arial', 30), bg="white", fg="Green")
     header.place(x=200, y=30, anchor=tk.CENTER)
+
+    if events == []:
+        no_events_label = tk.Label(delete_popup, text="No tasks to delete", font=('Arial', 15), bg="white", fg="black")
+        no_events_label.place(x=200, y=100, anchor=tk.CENTER)
+    else:
+        dropdown_label = tk.Label(delete_popup, text="Task", font=('Arial', 15), bg="white", fg="black")
+        dropdown_label.place(x=100, y=100, anchor=tk.CENTER)
+        task_var = tk.StringVar(delete_popup)
+        task_chosen = ttk.Combobox(delete_popup, width=19, textvariable=task_var)
+        task_chosen['values'] = events
+        task_chosen.place(x=250, y=100, anchor=tk.CENTER)
+
+        delete_task_button = ttk.Button(delete_popup, text="Delete", style="Green.TButton", command=lambda: delete_task(creds))
+        delete_task_button.place(x=200, y=170, anchor=tk.CENTER)
 
 def add_assignment_popup():
     add_assignment_popup = tk.Toplevel(main)
@@ -264,10 +292,10 @@ task_header.grid(row=0, column=1, padx=10, pady=10)
 add_button = ttk.Button(task_actions_frame, text="Add Task", style="Green.TButton", command=lambda: add_task_popup(), state="disabled" if not file_exists_flag else "normal")
 add_button.grid(row=1, column=1, padx=10, pady=10)
 
-edit_button = ttk.Button(task_actions_frame, text="Edit Task", style="Green.TButton", command=edit_task_popup)
+edit_button = ttk.Button(task_actions_frame, text="Edit Task", style="Green.TButton", command=lambda: edit_task_popup(events))
 edit_button.grid(row=1, column=2, padx=10, pady=10)
 
-delete_button = ttk.Button(task_actions_frame, text="Delete Task", style="Green.TButton", command=delete_task_popup)
+delete_button = ttk.Button(task_actions_frame, text="Delete Task", style="Green.TButton", command=lambda: delete_task_popup(events))
 delete_button.grid(row=2, column=1, padx=10, pady=10)
 
 other_action_frame = tk.Frame(main, width=40, height=20, bg = "white", highlightbackground="black", highlightthickness=1)
