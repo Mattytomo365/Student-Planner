@@ -3,7 +3,7 @@ from tkinter import ttk
 from tkcalendar import DateEntry
 from logic import *
 from main import *
-import os
+
 
 main = tk.Tk()
 

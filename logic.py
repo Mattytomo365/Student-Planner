@@ -1,4 +1,5 @@
 import datetime
+from datetime import time
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 import json
@@ -12,7 +13,7 @@ def get_upcoming_events(creds):
         service = build("calendar", "v3", credentials=creds) # Initialise the Calendar API, connects to calendar service using credentials.
 
         # Call the Calendar API
-        now = datetime.datetime.now(tz=datetime.timezone.utc).isoformat() # Gets current time in UTC format, converting it to a strning that Google Caldendar understands.
+        now = datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0).astimezone().isoformat()
         tomorrow = (datetime.datetime.now(tz=datetime.timezone.utc) + datetime.timedelta(days=1)).isoformat() # Gets the time for tomorrow in UTC format.
         print("Getting the upcoming 10 events")
         events_result = ( # Main API request to get the next 10 events.
@@ -85,3 +86,9 @@ def file_exists(path):
         return True
     else:
         return False
+    
+def get_task_details(task):
+    """
+    Returns the task details.
+    """
+    pass
