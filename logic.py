@@ -45,8 +45,25 @@ def get_upcoming_events(creds):
         print(f"An error occurred: {error}")
         return []
 
-def add_task(creds):
-    pass
+def add_task(creds, title, desc, module, start_time, end_time, date):
+    
+    with open ("modules.json", "r") as f:
+        modules = json.load(f)
+        if modules['10'] == module:
+            colour = 10
+        elif modules['9'] == module:
+            colour = 9
+        elif modules['5'] == module:
+            colour = 5
+
+    
+    event = {
+        "summary": f"{title}",
+        "description": f"{desc}",
+        "colorId": colour,
+        
+        
+    }
 
 def edit_task(creds):
     pass

@@ -1,6 +1,8 @@
 import tkinter as tk
 from tkinter import ttk
 from tkcalendar import DateEntry
+from tktimepicker import SpinTimePickerModern
+from tktimepicker import constants
 from logic import *
 from main import *
 
@@ -106,7 +108,7 @@ def refresh_main_window():
 def add_task_popup():
     add_popup = tk.Toplevel(main)
     add_popup.title("Add Task")
-    add_popup.geometry("400x400")
+    add_popup.geometry("400x450")
     add_popup.configure(bg="white")
     add_popup.resizable(False, False)
 
@@ -123,13 +125,8 @@ def add_task_popup():
     desc_entry = tk.Entry(add_popup, font=('Arial', 15), bg="white", fg="black")
     desc_entry.place(x=250, y=150, anchor=tk.CENTER)
 
-    location_label = tk.Label(add_popup, text="Location", font=('Arial', 15), bg="white", fg="black")
-    location_label.place(x=100, y=200, anchor=tk.CENTER)
-    location_entry = tk.Entry(add_popup, font=('Arial', 15), bg="white", fg="black")
-    location_entry.place(x=250, y=200, anchor=tk.CENTER)
-
     dropdown_label = tk.Label(add_popup, text="Module", font=('Arial', 15), bg="white", fg="black")
-    dropdown_label.place(x=100, y=250, anchor=tk.CENTER)
+    dropdown_label.place(x=100, y=200, anchor=tk.CENTER)
     module_var = tk.StringVar(add_popup)
     module_chosen = ttk.Combobox(add_popup, width=19, textvariable=module_var)
 
@@ -137,17 +134,35 @@ def add_task_popup():
         modules = json.load(file)
         module_chosen['values'] = (modules['10'], modules['9'], modules['5'])
 
-    module_chosen.place(x=250, y=250, anchor=tk.CENTER)
+    module_chosen.place(x=250, y=200, anchor=tk.CENTER)
 
     date_label = tk.Label(add_popup, text="Date", font=('Arial', 15), bg="white", fg="black")
-    date_label.place(x=100, y=300, anchor=tk.CENTER)
+    date_label.place(x=100, y=250, anchor=tk.CENTER)
     date_chooser = DateEntry(add_popup, width=19, background='green', foreground='white', borderwidth=2, date_pattern='dd-mm-yyyy')
-    date_chooser.place(x=250, y=300, anchor=tk.CENTER)
+    date_chooser.place(x=250, y=250, anchor=tk.CENTER)
 
-    # Recurring tasks?
+    start_time_label = tk.Label(add_popup, text="Start Time", font=('Arial', 15), bg="white", fg="black")
+    start_time_label.place(x=100, y=300, anchor=tk.CENTER)
 
-    add_task_button = ttk.Button(add_popup, text="Add", style="Green.TButton", command=lambda: add_task(creds, title_entry.get(), desc_entry.get(), location_entry.get(), module_var.get(), date_chooser.get_date()))
-    add_task_button.place(x=200, y=350, anchor=tk.CENTER)
+    start_time_picker = SpinTimePickerModern(add_popup)
+    start_time_picker.addAll(constants.HOURS24)  # adds hours clock, minutes and period
+    start_time_picker.configureAll(bg="white", height=1, fg="black", font=("Arial", 15),
+                            clickedcolor="green")
+    start_time_picker.configure_separator(bg="white", fg="black")
+    start_time_picker.place(x=184, y=300, anchor=tk.CENTER)
+
+    end_time_label = tk.Label(add_popup, text="End Time", font=('Arial', 15), bg="white", fg="black")
+    end_time_label.place(x=100, y=350, anchor=tk.CENTER)
+
+    end_time_picker = SpinTimePickerModern(add_popup)
+    end_time_picker.addAll(constants.HOURS24)  # adds hours clock, minutes and period
+    end_time_picker.configureAll(bg="white", height=1, fg="black", font=("Arial", 15),
+                            clickedcolor="green")
+    end_time_picker.configure_separator(bg="white", fg="black")
+    end_time_picker.place(x=184, y=350, anchor=tk.CENTER)
+
+    add_task_button = ttk.Button(add_popup, text="Add", style="Green.TButton", command=lambda: add_task(creds, title_entry.get(), desc_entry.get(), module_var.get(), start_time_picker.time(), end_time_picker.time(), date_chooser.get_date()))
+    add_task_button.place(x=200, y=400, anchor=tk.CENTER)
 
 def edit_task_popup(events):
     edit_popup = tk.Toplevel(main)
