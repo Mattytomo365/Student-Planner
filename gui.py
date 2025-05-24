@@ -99,6 +99,15 @@ progress.grid(row=3, column=0, padx=0, pady=0)
 
 # Popup windows
 
+# def format_time(creds, title, desc, module, start_time, end_time, date):
+#     """
+#     Function to format the start and end time for compatability with API.
+#     """
+#     start_time="{}:{}".format(*time)
+#     end_time="{}:{}".format(*time)
+
+#     add_task(creds, title, desc, module, start_time, end_time, date)
+
 def refresh_main_window():
     """
     Function to refresh or update the main window after saving modules.
@@ -161,7 +170,7 @@ def add_task_popup():
     end_time_picker.configure_separator(bg="white", fg="black")
     end_time_picker.place(x=184, y=350, anchor=tk.CENTER)
 
-    add_task_button = ttk.Button(add_popup, text="Add", style="Green.TButton", command=lambda: add_task(creds, title_entry.get(), desc_entry.get(), module_var.get(), start_time_picker.time(), end_time_picker.time(), date_chooser.get_date()))
+    add_task_button = ttk.Button(add_popup, text="Add", style="Green.TButton", command=lambda: add_task(creds, title_entry.get(), desc_entry.get(), module_var.get(), start_time_picker.hours(), start_time_picker.minutes(), end_time_picker.hours(), end_time_picker.minutes(), date_chooser.get_date()))
     add_task_button.place(x=200, y=400, anchor=tk.CENTER)
 
 def edit_task_popup(events):
@@ -324,6 +333,8 @@ def add_modules_popup(button_to_disable, button_to_enable):
 
     add_modules_button = ttk.Button(modules_popup, text="Save", style="Green.TButton", command=save_modules)
     add_modules_button.place(x=200, y=300, anchor=tk.CENTER)
+
+
 
 # Buttons
 

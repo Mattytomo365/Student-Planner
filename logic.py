@@ -36,7 +36,6 @@ def get_upcoming_events(creds):
      # Returns the start and name of the next 10 events
         results = []
         for event in events:
-            # start = event["start"].get("dateTime", event["start"].get("date"))
             results.append((event["summary"]))
         
         return results
@@ -45,25 +44,51 @@ def get_upcoming_events(creds):
         print(f"An error occurred: {error}")
         return []
 
-def add_task(creds, title, desc, module, start_time, end_time, date):
-    
-    with open ("modules.json", "r") as f:
-        modules = json.load(f)
-        if modules['10'] == module:
-            colour = 10
-        elif modules['9'] == module:
-            colour = 9
-        elif modules['5'] == module:
-            colour = 5
+def add_task(creds, title, desc, module, start_time_hour, start_time_minute, end_time_hour, end_time_minute, date):
+
+    try:
+        service = build("calendar", "v3", credentials=creds)  # Initialize the Calendar API
+        with open ("modules.json", "r") as f:
+            modules = json.load(f)
+            if modules['10'] == module:
+                colour = 10
+            elif modules['9'] == module:
+                colour = 9
+            elif modules['5'] == module:
+                colour = 5
+                
+        print(date)
+        print(start_time_hour)
+        print(start_time_minute)
+        print(end_time_hour)
+        print(end_time_minute)
 
     
-    event = {
-        "summary": f"{title}",
-        "description": f"{desc}",
-        "colorId": colour,
+        event = {
+            "summary": f"{title}",
+            "location": "Somewhere", # Remove
+            "description": f"{desc}",
+            "colorId": colour,
+            "start": {
+                "dateTime": f"{date}T{start_time_hour}:{start_time_minute}:00",
+                "timeZone": "Europe/London",
+            },
+            "end": {
+                "dateTime": f"{date}T{end_time_hour}:{end_time_minute}:00",
+                "timeZone": "Europe/London",
+            },
+            "recurrence": [ # Remove
+                "RRULE:FREQ=DAILY;COUNT=1"  # Sets the event to recur daily for one occurrence.
+            ],
+            "attendees": [ # Remove
+                {"email": "matty.tom@outlook.com"}
+            ]
+        }
+
+    except HttpError as error:
+        print(f"An error occurred: {error}")
         
-        
-    }
+    event = service.events().insert(calendarId="primary", body=event).execute()  # Inserts the event into the user's primary calendar.
 
 def edit_task(creds):
     pass
