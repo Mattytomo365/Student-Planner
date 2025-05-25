@@ -59,6 +59,7 @@ def toggle():
 
 events = get_upcoming_events(creds)
 
+
 checklist_frame = tk.Frame(main, width=30, height=20, bg = "white", highlightbackground="green", highlightthickness=1)
 checklist_frame.grid(row=1, column=0, sticky="nsw", padx=50, pady=50, rowspan=2)
 
@@ -99,20 +100,33 @@ progress.grid(row=3, column=0, padx=0, pady=0)
 
 # Popup windows
 
-# def format_time(creds, title, desc, module, start_time, end_time, date):
-#     """
-#     Function to format the start and end time for compatability with API.
-#     """
-#     start_time="{}:{}".format(*time)
-#     end_time="{}:{}".format(*time)
-
-#     add_task(creds, title, desc, module, start_time, end_time, date)
-
 def refresh_main_window():
     """
     Function to refresh or update the main window after saving modules.
     """
     main.update_idletasks()  # Refresh the main window
+
+def refresh_checklist():
+    events = get_upcoming_events(creds)
+    checklist_frame = tk.Frame(main, width=30, height=20, bg = "white", highlightbackground="green", highlightthickness=1)
+    checklist_frame.grid(row=1, column=0, sticky="nsw", padx=50, pady=50, rowspan=2)
+
+    checklist_header = tk.Label(checklist_frame, text="To-Do", font=("Arial", 20), bg="white", fg="green")
+    checklist_header.grid(row=0, column=0, padx=10, pady=10, sticky="nsw") # Checked boxes need to be saved!
+
+    try:
+        with open('checkbox_states.json', 'r') as file:
+            states = json.load(file)
+    except FileNotFoundError:
+        states = {}
+
+    task_vars = []
+
+    for summary in events:
+        var = tk.BooleanVar(value=states.get(summary, False))  # Use the saved state if it exists, otherwise default to False
+        task_vars.append(var)
+        checkbox = tk.Checkbutton(checklist_frame, text=summary, variable=var, bg="white", fg="black", width=30, justify="left", anchor="w", selectcolor="green", padx=3, command=toggle)
+        checkbox.grid(row=len(task_vars), column=0, sticky="nsw", padx=30, pady=5)
 
 def add_task_popup():
     add_popup = tk.Toplevel(main)
@@ -170,7 +184,7 @@ def add_task_popup():
     end_time_picker.configure_separator(bg="white", fg="black")
     end_time_picker.place(x=184, y=350, anchor=tk.CENTER)
 
-    add_task_button = ttk.Button(add_popup, text="Add", style="Green.TButton", command=lambda: add_task(creds, title_entry.get(), desc_entry.get(), module_var.get(), start_time_picker.hours(), start_time_picker.minutes(), end_time_picker.hours(), end_time_picker.minutes(), date_chooser.get_date()))
+    add_task_button = ttk.Button(add_popup, text="Add", style="Green.TButton", command=lambda: [add_task(creds, title_entry.get(), desc_entry.get(), module_var.get(), start_time_picker.hours(), start_time_picker.minutes(), end_time_picker.hours(), end_time_picker.minutes(), date_chooser.get_date()), refresh_checklist(), add_popup.destroy()])
     add_task_button.place(x=200, y=400, anchor=tk.CENTER)
 
 def edit_task_popup(events):
