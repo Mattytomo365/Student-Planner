@@ -14,7 +14,7 @@ def get_upcoming_events(creds):
 
         # Call the Calendar API
         now = datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0).astimezone().isoformat()
-        tomorrow = (datetime.datetime.now(tz=datetime.timezone.utc) + datetime.timedelta(days=1)).isoformat() # Gets the time for tomorrow in UTC format.
+        tomorrow = ((datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0).astimezone()) + datetime.timedelta(days=1)).isoformat() # Gets the time for tomorrow in UTC format.
         print("Getting the upcoming 10 events")
         events_result = ( # Main API request to get the next 10 events.
          service.events()
@@ -63,7 +63,9 @@ def add_task(creds, title, desc, module, start_time_hour, start_time_minute, end
         print(end_time_hour)
         print(end_time_minute)
 
-    
+        # CAN I REMOVE LOCATION, RECURRENCE AND ATTENDEES?
+        # Allow for the user to view the description they added?
+
         event = {
             "summary": f"{title}",
             "location": "Somewhere", # Remove
