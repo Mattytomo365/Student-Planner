@@ -43,6 +43,9 @@ def get_upcoming_events(creds):
     except HttpError as error:
         print(f"An error occurred: {error}")
         return []
+    
+def retrieve_event_id(summary):
+    pass
 
 
 def add_task(creds, title, desc, module, start_time_hour, start_time_minute, end_time_hour, end_time_minute, date):
