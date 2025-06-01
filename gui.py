@@ -83,8 +83,8 @@ class StudentPlannerApp:
 
         self.task_vars = []
 
-        for summary in self.events:
-            var = tk.BooleanVar(value=states.get(summary, False))  # Use the saved state if it exists, otherwise default to False
+        for id, summary in self.events:
+            var = tk.BooleanVar(value=states.get(id, False))  # Use the saved state if it exists, otherwise default to False
             self.task_vars.append(var)
             checkbox = tk.Checkbutton(checklist_frame, text=summary, variable=var, bg="white", fg="black", width=30, justify="left", anchor="w", selectcolor="green", padx=3, command=toggle)
             checkbox.grid(row=len(self.task_vars), column=0, sticky="nsw", padx=30, pady=5)
@@ -208,6 +208,7 @@ class StudentPlannerApp:
             task_chosen = ttk.Combobox(edit_popup, width=19, textvariable=task_var)
             task_chosen['values'] = events
             task_chosen.place(x=250, y=100, anchor=tk.CENTER)
+            task_chosen.bind("<<ComboboxSelected>>", retrieve_event_id)
 
         # Autofill fields with selected task details
 
@@ -354,8 +355,12 @@ class StudentPlannerApp:
         """
         Function to save the state of the main window when it is closed.
         """
+        # with open('checkbox_states.json', 'w') as file:
+        #     states = {summary : var.get() for summary, var in zip(self.events, self.task_vars)} # Pairs the summary with the variable, allowing to iterate through the lists simultaneously.
+        #     json.dump(states, file)
+
         with open('checkbox_states.json', 'w') as file:
-            states = {summary : var.get() for summary, var in zip(self.events, self.task_vars)} # Pairs the summary with the variable, allowing to iterate through the lists simultaneously.
+            states = {id : var.get() for id, var in zip([x[0] for x in self.events], self.task_vars)} # Pairs the summary with the variable, allowing to iterate through the lists simultaneously.
             json.dump(states, file)
 
     def on_close(self):

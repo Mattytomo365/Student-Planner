@@ -36,7 +36,7 @@ def get_upcoming_events(creds):
      # Returns the start and name of the next 10 events
         results = []
         for event in events:
-            results.append((event["summary"]))
+            results.append((event["id"], event["summary"]))
         
         return results
 
@@ -44,8 +44,28 @@ def get_upcoming_events(creds):
         print(f"An error occurred: {error}")
         return []
     
-def retrieve_event_id(summary):
-    pass
+def retrieve_event_id(creds, summary):
+    try:
+        service = build("calendar", "v3", credentials=creds)
+        events_result = ( # Main API request to get the next 10 events.
+         service.events()
+            .list(
+                summary = f"{summary}" # accesses the user's primary calendar.
+            )
+            .execute()
+        )
+        events = events_result.get("items", [])
+        if not events:
+            return ["Event not found"]
+
+        for event in events:
+            result = (event["id"])
+        
+        return result
+
+    except HttpError as error:
+        print(f"An error occurred: {error}")
+        return []
 
 
 def add_task(creds, title, desc, module, start_time_hour, start_time_minute, end_time_hour, end_time_minute, date):
