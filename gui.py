@@ -23,7 +23,7 @@ class StudentPlannerApp:
     
     def setup_styles(self):
         style = ttk.Style(self.main)
-        style.theme_use("clam")  # Change theme to allow background color changes
+        style.theme_use("clam")
         style.configure("Green.TButton",
                         background="green",
                         foreground="white",
@@ -72,7 +72,7 @@ class StudentPlannerApp:
         checklist_frame.grid(row=1, column=0, sticky="nsw", padx=50, pady=50, rowspan=2)
 
         checklist_header = tk.Label(checklist_frame, text="To-Do", font=("Arial", 20), bg="white", fg="green")
-        checklist_header.grid(row=0, column=0, padx=10, pady=10, sticky="nsw") # Checked boxes need to be saved!
+        checklist_header.grid(row=0, column=0, padx=10, pady=10, sticky="nsw")
 
 
         try:
@@ -129,12 +129,6 @@ class StudentPlannerApp:
 
         view_key_button = ttk.Button(other_action_frame, text="View Key", style="Green.TButton", command=view_key)
         view_key_button.grid(row=2, column=1, padx=10, pady=10)
-
-    def refresh_main_window(self):
-        """
-        Function to refresh or update the main window after saving modules.
-        """
-        self.main.update_idletasks()  # Refresh the main window
 
     def add_task_popup(self):
         add_popup = tk.Toplevel(self.main)
