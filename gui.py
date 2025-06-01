@@ -127,7 +127,7 @@ class StudentPlannerApp:
         add_modules_button = ttk.Button(other_action_frame, text="Add Modules", style="Green.TButton", command=lambda: self.add_modules_popup(add_modules_button, add_button), state="disabled" if file_exists_flag else "normal")
         add_modules_button.grid(row=1, column=2, padx=10, pady=10)
 
-        view_key_button = ttk.Button(other_action_frame, text="View Key", style="Green.TButton", command=view_key)
+        view_key_button = ttk.Button(other_action_frame, text="View Key", style="Green.TButton", command=self.view_key)
         view_key_button.grid(row=2, column=1, padx=10, pady=10)
 
     def add_task_popup(self):
@@ -190,6 +190,13 @@ class StudentPlannerApp:
         add_task_button.place(x=200, y=400, anchor=tk.CENTER)
 
     def edit_task_popup(self, events):
+
+        def task_to_edit(event):
+            task = task_chosen.get()
+            task_id = next(x[0] for x in self.events if x[1] == task)
+            details = retrieve_event_details(task_id)
+            prefill_edit_popup(details)
+
         edit_popup = tk.Toplevel(self.main)
         edit_popup.title("Edit Task")
         edit_popup.geometry("400x450")
@@ -206,45 +213,46 @@ class StudentPlannerApp:
             dropdown_label.place(x=100, y=100, anchor=tk.CENTER)
             task_var = tk.StringVar(edit_popup)
             task_chosen = ttk.Combobox(edit_popup, width=19, textvariable=task_var)
-            task_chosen['values'] = events
+            task_chosen['values'] = [x[1] for x in self.events]
             task_chosen.place(x=250, y=100, anchor=tk.CENTER)
-            task_chosen.bind("<<ComboboxSelected>>", retrieve_event_id)
+            task_chosen.bind("<<ComboboxSelected>>", task_to_edit)
 
-        # Autofill fields with selected task details
+        def prefill_edit_popup(details):
+            # Autofill fields with selected task details
 
-        title_label = tk.Label(edit_popup, text="Title", font=('Arial', 15), bg="white", fg="black")
-        title_label.place(x=100, y=150, anchor=tk.CENTER)
-        title_entry = tk.Entry(edit_popup, font=('Arial', 15), bg="white", fg="black")
-        title_entry.place(x=250, y=150, anchor=tk.CENTER)
+            title_label = tk.Label(edit_popup, text="Title", font=('Arial', 15), bg="white", fg="black")
+            title_label.place(x=100, y=150, anchor=tk.CENTER)
+            title_entry = tk.Entry(edit_popup, font=('Arial', 15), bg="white", fg="black")
+            title_entry.place(x=250, y=150, anchor=tk.CENTER)
 
-        desc_label = tk.Label(edit_popup, text="Description", font=('Arial', 15), bg="white", fg="black")
-        desc_label.place(x=100, y=200, anchor=tk.CENTER)
-        desc_entry = tk.Entry(edit_popup, font=('Arial', 15), bg="white", fg="black")
-        desc_entry.place(x=250, y=200, anchor=tk.CENTER)
+            desc_label = tk.Label(edit_popup, text="Description", font=('Arial', 15), bg="white", fg="black")
+            desc_label.place(x=100, y=200, anchor=tk.CENTER)
+            desc_entry = tk.Entry(edit_popup, font=('Arial', 15), bg="white", fg="black")
+            desc_entry.place(x=250, y=200, anchor=tk.CENTER)
 
-        location_label = tk.Label(edit_popup, text="Location", font=('Arial', 15), bg="white", fg="black")
-        location_label.place(x=100, y=250, anchor=tk.CENTER)
-        location_entry = tk.Entry(edit_popup, font=('Arial', 15), bg="white", fg="black")
-        location_entry.place(x=250, y=250, anchor=tk.CENTER)
+            location_label = tk.Label(edit_popup, text="Location", font=('Arial', 15), bg="white", fg="black")
+            location_label.place(x=100, y=250, anchor=tk.CENTER)
+            location_entry = tk.Entry(edit_popup, font=('Arial', 15), bg="white", fg="black")
+            location_entry.place(x=250, y=250, anchor=tk.CENTER)
 
-        dropdown_label = tk.Label(edit_popup, text="Module", font=('Arial', 15), bg="white", fg="black")
-        dropdown_label.place(x=100, y=300, anchor=tk.CENTER)
-        module_var = tk.StringVar(edit_popup)
-        module_chosen = ttk.Combobox(edit_popup, width=19, textvariable=module_var)
+            dropdown_label = tk.Label(edit_popup, text="Module", font=('Arial', 15), bg="white", fg="black")
+            dropdown_label.place(x=100, y=300, anchor=tk.CENTER)
+            module_var = tk.StringVar(edit_popup)
+            module_chosen = ttk.Combobox(edit_popup, width=19, textvariable=module_var)
 
-        with open('modules.json', 'r') as file:
-            modules = json.load(file)
-            module_chosen['values'] = (modules['10'], modules['9'], modules['5'])
+            with open('modules.json', 'r') as file:
+                modules = json.load(file)
+                module_chosen['values'] = (modules['10'], modules['9'], modules['5'])
 
-        module_chosen.place(x=250, y=300, anchor=tk.CENTER)
+            module_chosen.place(x=250, y=300, anchor=tk.CENTER)
 
-        date_label = tk.Label(edit_popup, text="Date", font=('Arial', 15), bg="white", fg="black")
-        date_label.place(x=100, y=350, anchor=tk.CENTER)
-        date_chooser = DateEntry(edit_popup, width=19, background='green', foreground='white', borderwidth=2, date_pattern='dd-mm-yyyy')
-        date_chooser.place(x=250, y=350, anchor=tk.CENTER)
+            date_label = tk.Label(edit_popup, text="Date", font=('Arial', 15), bg="white", fg="black")
+            date_label.place(x=100, y=350, anchor=tk.CENTER)
+            date_chooser = DateEntry(edit_popup, width=19, background='green', foreground='white', borderwidth=2, date_pattern='dd-mm-yyyy')
+            date_chooser.place(x=250, y=350, anchor=tk.CENTER)
 
-        edit_task_button = ttk.Button(edit_popup, text="Save", style="Green.TButton", command=lambda: edit_task(self.creds))
-        edit_task_button.place(x=200, y=400, anchor=tk.CENTER)
+            edit_task_button = ttk.Button(edit_popup, text="Save", style="Green.TButton", command=lambda: edit_task(self.creds))
+            edit_task_button.place(x=200, y=400, anchor=tk.CENTER)
 
 
     def delete_task_popup(self, events):
