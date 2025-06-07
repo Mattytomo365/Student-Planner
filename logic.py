@@ -31,7 +31,7 @@ def get_upcoming_events(creds):
         events = events_result.get("items", []) # Gets the list of events from the API response.
 
         if not events:
-            return ["No events today"]
+            return [("no_event_id", "No events today")]
 
      # Returns the start and name of the next 10 events
         results = []

@@ -83,6 +83,7 @@ class StudentPlannerApp:
 
         self.task_vars = []
 
+        print(self.events)
         for id, summary in self.events:
             var = tk.BooleanVar(value=states.get(id, False))  # Use the saved state if it exists, otherwise default to False
             self.task_vars.append(var)
