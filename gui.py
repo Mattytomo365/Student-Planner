@@ -142,17 +142,17 @@ class StudentPlannerApp:
         header.grid(row=0, column=0, padx=140, pady=10, columnspan=2)
 
         title_label = tk.Label(add_popup, text="Title", font=('Arial', 15), bg="white", fg="black")
-        title_label.place(x=100, y=100, anchor=tk.CENTER)
+        title_label.grid(row=1, column=0, pady=15)
         title_entry = tk.Entry(add_popup, font=('Arial', 15), bg="white", fg="black")
-        title_entry.place(x=250, y=100, anchor=tk.CENTER)
+        title_entry.grid(row=1, column=1, pady=15, sticky='w')
 
         desc_label = tk.Label(add_popup, text="Description", font=('Arial', 15), bg="white", fg="black")
-        desc_label.place(x=100, y=150, anchor=tk.CENTER)
+        desc_label.grid(row=2, column=0, pady=15)
         desc_entry = tk.Entry(add_popup, font=('Arial', 15), bg="white", fg="black")
-        desc_entry.place(x=250, y=150, anchor=tk.CENTER)
+        desc_entry.grid(row=2, column=1, pady=15, sticky='w')
 
         dropdown_label = tk.Label(add_popup, text="Module", font=('Arial', 15), bg="white", fg="black")
-        dropdown_label.place(x=100, y=200, anchor=tk.CENTER)
+        dropdown_label.grid(row=3, column=0, pady=15)
         module_var = tk.StringVar(add_popup)
         module_chosen = ttk.Combobox(add_popup, width=19, textvariable=module_var)
 
@@ -160,84 +160,86 @@ class StudentPlannerApp:
             modules = json.load(file)
             module_chosen['values'] = (modules['10'], modules['9'], modules['5'])
 
-        module_chosen.place(x=250, y=200, anchor=tk.CENTER)
+        module_chosen.grid(row=3, column=1, pady=15, sticky='w')
 
         date_label = tk.Label(add_popup, text="Date", font=('Arial', 15), bg="white", fg="black")
-        date_label.place(x=100, y=250, anchor=tk.CENTER)
+        date_label.grid(row=4, column=0, pady=15)
         date_chooser = DateEntry(add_popup, width=19, background='green', foreground='white', borderwidth=2, date_pattern='dd-mm-yyyy')
-        date_chooser.place(x=250, y=250, anchor=tk.CENTER)
+        date_chooser.grid(row=4, column=1, pady=15, sticky='w')
 
         start_time_label = tk.Label(add_popup, text="Start Time", font=('Arial', 15), bg="white", fg="black")
-        start_time_label.place(x=100, y=300, anchor=tk.CENTER)
+        start_time_label.grid(row=5, column=0, pady=15)
 
         start_time_picker = SpinTimePickerModern(add_popup)
         start_time_picker.addAll(constants.HOURS24)  # adds hours clock, minutes and period
         start_time_picker.configureAll(bg="white", height=1, fg="black", font=("Arial", 15),
                                 clickedcolor="green")
         start_time_picker.configure_separator(bg="white", fg="black")
-        start_time_picker.place(x=184, y=300, anchor=tk.CENTER)
+        start_time_picker.grid(row=5, column=1, pady=15, sticky='w')
 
         end_time_label = tk.Label(add_popup, text="End Time", font=('Arial', 15), bg="white", fg="black")
-        end_time_label.place(x=100, y=350, anchor=tk.CENTER)
+        end_time_label.grid(row=6, column=0, pady=15)
 
         end_time_picker = SpinTimePickerModern(add_popup)
         end_time_picker.addAll(constants.HOURS24)  # adds hours clock, minutes and period
         end_time_picker.configureAll(bg="white", height=1, fg="black", font=("Arial", 15),
                                 clickedcolor="green")
         end_time_picker.configure_separator(bg="white", fg="black")
-        end_time_picker.place(x=184, y=350, anchor=tk.CENTER)
+        end_time_picker.grid(row=6, column=1, pady=15, sticky='w')
 
         add_task_button = ttk.Button(add_popup, text="Add", style="Green.TButton", command=lambda: [add_task(self.creds, title_entry.get(), desc_entry.get(), module_var.get(), start_time_picker.hours(), start_time_picker.minutes(), end_time_picker.hours(), end_time_picker.minutes(), date_chooser.get_date()), self.construct_checklist(), add_popup.destroy()])
-        add_task_button.place(x=200, y=400, anchor=tk.CENTER)
+        add_task_button.grid(row=7, column=0, pady=15, columnspan=2)
 
     def edit_task_popup(self, events):
 
         def task_to_edit(event):
             task = task_chosen.get()
             task_id = next(x[0] for x in self.events if x[1] == task)
-            details = retrieve_event_details(task_id)
+            details = retrieve_event_details(self.creds, task_id)
             prefill_edit_popup(details)
 
         edit_popup = tk.Toplevel(self.main)
         edit_popup.title("Edit Task")
-        edit_popup.geometry("400x450")
+        edit_popup.geometry("400x550")
         edit_popup.configure(bg="white")
         edit_popup.resizable(False, False)
         header = tk.Label(edit_popup, text= "Edit Task", font=('Arial', 30), bg="white", fg="Green")
-        header.place(x=200, y=30, anchor=tk.CENTER)
+        header.grid(row=0, column=0, columnspan=2, padx=140, pady=10)
 
         if events == []:
             no_events_label = tk.Label(edit_popup, text="No tasks to edit", font=('Arial', 15), bg="white", fg="black")
-            no_events_label.place(x=200, y=100, anchor=tk.CENTER)
+            no_events_label.grid(row=1, column=0, columnspan=2)
         else:
             dropdown_label = tk.Label(edit_popup, text="Task", font=('Arial', 15), bg="white", fg="black")
-            dropdown_label.place(x=100, y=100, anchor=tk.CENTER)
+            dropdown_label.grid(row=1, column=0, pady=15)
             task_var = tk.StringVar(edit_popup)
             task_chosen = ttk.Combobox(edit_popup, width=19, textvariable=task_var)
             task_chosen['values'] = [x[1] for x in self.events]
-            task_chosen.place(x=250, y=100, anchor=tk.CENTER)
+            task_chosen.grid(row=1, column=1, pady=15, sticky='w')
             task_chosen.bind("<<ComboboxSelected>>", task_to_edit)
 
         def prefill_edit_popup(details):
             # Autofill fields with selected task details
 
             title_label = tk.Label(edit_popup, text="Title", font=('Arial', 15), bg="white", fg="black")
-            title_label.place(x=100, y=150, anchor=tk.CENTER)
+            title_label.grid(row=2, column=0, pady=15)
             title_entry = tk.Entry(edit_popup, font=('Arial', 15), bg="white", fg="black")
-            title_entry.place(x=250, y=150, anchor=tk.CENTER)
+            title_entry.insert(0, str(details["summary"]))
+            title_entry.grid(row=2, column=1, pady=15, sticky='w')
 
             desc_label = tk.Label(edit_popup, text="Description", font=('Arial', 15), bg="white", fg="black")
-            desc_label.place(x=100, y=200, anchor=tk.CENTER)
+            desc_label.grid(row=3, column=0, pady=15)
             desc_entry = tk.Entry(edit_popup, font=('Arial', 15), bg="white", fg="black")
-            desc_entry.place(x=250, y=200, anchor=tk.CENTER)
+            desc_entry.insert(0, str(details["description"]))
+            desc_entry.grid(row=3, column=1, pady=15, sticky='w')
 
             location_label = tk.Label(edit_popup, text="Location", font=('Arial', 15), bg="white", fg="black")
-            location_label.place(x=100, y=250, anchor=tk.CENTER)
+            location_label.grid(row=4, column=0, pady=15)
             location_entry = tk.Entry(edit_popup, font=('Arial', 15), bg="white", fg="black")
-            location_entry.place(x=250, y=250, anchor=tk.CENTER)
+            location_entry.grid(row=4, column=1, pady=15, sticky='w')
 
             dropdown_label = tk.Label(edit_popup, text="Module", font=('Arial', 15), bg="white", fg="black")
-            dropdown_label.place(x=100, y=300, anchor=tk.CENTER)
+            dropdown_label.grid(row=5, column=0, pady=15)
             module_var = tk.StringVar(edit_popup)
             module_chosen = ttk.Combobox(edit_popup, width=19, textvariable=module_var)
 
@@ -245,15 +247,35 @@ class StudentPlannerApp:
                 modules = json.load(file)
                 module_chosen['values'] = (modules['10'], modules['9'], modules['5'])
 
-            module_chosen.place(x=250, y=300, anchor=tk.CENTER)
+            module_chosen.grid(row=5, column=1, pady=15, sticky='w')
 
             date_label = tk.Label(edit_popup, text="Date", font=('Arial', 15), bg="white", fg="black")
-            date_label.place(x=100, y=350, anchor=tk.CENTER)
+            date_label.grid(row=6, column=0, pady=15)
             date_chooser = DateEntry(edit_popup, width=19, background='green', foreground='white', borderwidth=2, date_pattern='dd-mm-yyyy')
-            date_chooser.place(x=250, y=350, anchor=tk.CENTER)
+            date_chooser.grid(row=6, column=1, pady=15, sticky='w')
+
+            start_time_label = tk.Label(edit_popup, text="Start Time", font=('Arial', 15), bg="white", fg="black")
+            start_time_label.grid(row=7, column=0, pady=15)
+
+            start_time_picker = SpinTimePickerModern(edit_popup)
+            start_time_picker.addAll(constants.HOURS24)  # adds hours clock, minutes and period
+            start_time_picker.configureAll(bg="white", height=1, fg="black", font=("Arial", 15),
+                                    clickedcolor="green")
+            start_time_picker.configure_separator(bg="white", fg="black")
+            start_time_picker.grid(row=7, column=1, pady=15, sticky='w')
+
+            end_time_label = tk.Label(edit_popup, text="End Time", font=('Arial', 15), bg="white", fg="black")
+            end_time_label.grid(row=8, column=0, pady=15)
+
+            end_time_picker = SpinTimePickerModern(edit_popup)
+            end_time_picker.addAll(constants.HOURS24)  # adds hours clock, minutes and period
+            end_time_picker.configureAll(bg="white", height=1, fg="black", font=("Arial", 15),
+                                    clickedcolor="green")
+            end_time_picker.configure_separator(bg="white", fg="black")
+            end_time_picker.grid(row=8, column=1, pady=15, sticky='w')
 
             edit_task_button = ttk.Button(edit_popup, text="Save", style="Green.TButton", command=lambda: edit_task(self.creds))
-            edit_task_button.place(x=200, y=400, anchor=tk.CENTER)
+            edit_task_button.grid(row=9, column=0, pady=8, columnspan=2)
 
 
     def delete_task_popup(self, events):
