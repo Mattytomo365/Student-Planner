@@ -151,16 +151,16 @@ class StudentPlannerApp:
         desc_entry = tk.Entry(add_popup, font=('Arial', 15), bg="white", fg="black")
         desc_entry.grid(row=2, column=1, pady=15, sticky='w')
 
-        dropdown_label = tk.Label(add_popup, text="Module", font=('Arial', 15), bg="white", fg="black")
-        dropdown_label.grid(row=3, column=0, pady=15)
+        module_dropdown_label = tk.Label(add_popup, text="Module", font=('Arial', 15), bg="white", fg="black")
+        module_dropdown_label.grid(row=3, column=0, pady=15)
         module_var = tk.StringVar(add_popup)
-        module_chosen = ttk.Combobox(add_popup, width=19, textvariable=module_var)
+        module_dropdown = ttk.Combobox(add_popup, width=19, textvariable=module_var)
 
         with open('modules.json', 'r') as file:
             modules = json.load(file)
-            module_chosen['values'] = (modules['10'], modules['9'], modules['5'])
+            module_dropdown['values'] = (modules['10'], modules['9'], modules['5'])
 
-        module_chosen.grid(row=3, column=1, pady=15, sticky='w')
+        module_dropdown.grid(row=3, column=1, pady=15, sticky='w')
 
         date_label = tk.Label(add_popup, text="Date", font=('Arial', 15), bg="white", fg="black")
         date_label.grid(row=4, column=0, pady=15)
@@ -187,7 +187,7 @@ class StudentPlannerApp:
         end_time_picker.configure_separator(bg="white", fg="black")
         end_time_picker.grid(row=6, column=1, pady=15, sticky='w')
 
-        add_task_button = ttk.Button(add_popup, text="Add", style="Green.TButton", command=lambda: [add_task(self.creds, title_entry.get(), desc_entry.get(), module_var.get(), start_time_picker.hours(), start_time_picker.minutes(), end_time_picker.hours(), end_time_picker.minutes(), date_chooser.get_date()), self.construct_checklist(), add_popup.destroy()])
+        add_task_button = ttk.Button(add_popup, text="Add", style="Green.TButton", command=lambda: [add_task(self.creds, title_entry.get(), desc_entry.get(), module_dropdown.get(), start_time_picker.hours(), start_time_picker.minutes(), end_time_picker.hours(), end_time_picker.minutes(), date_chooser.get_date()), self.construct_checklist(), add_popup.destroy()])
         add_task_button.grid(row=7, column=0, pady=15, columnspan=2)
 
     def edit_task_popup(self, events):
@@ -236,22 +236,31 @@ class StudentPlannerApp:
             location_label = tk.Label(edit_popup, text="Location", font=('Arial', 15), bg="white", fg="black")
             location_label.grid(row=4, column=0, pady=15)
             location_entry = tk.Entry(edit_popup, font=('Arial', 15), bg="white", fg="black")
+            location_entry.insert(0, str(details["location"]))
             location_entry.grid(row=4, column=1, pady=15, sticky='w')
 
-            dropdown_label = tk.Label(edit_popup, text="Module", font=('Arial', 15), bg="white", fg="black")
-            dropdown_label.grid(row=5, column=0, pady=15)
+            with open ("modules.json", "r") as f:
+                modules = json.load(f)
+                module = modules[f'{details["colorId"]}']
+
+            module_dropdown_label = tk.Label(edit_popup, text="Module", font=('Arial', 15), bg="white", fg="black")
+            module_dropdown_label.grid(row=5, column=0, pady=15)
             module_var = tk.StringVar(edit_popup)
-            module_chosen = ttk.Combobox(edit_popup, width=19, textvariable=module_var)
+            module_dropdown = ttk.Combobox(edit_popup, width=19, textvariable=module_var)
+            module_dropdown.insert(0, str(module))
+            
 
             with open('modules.json', 'r') as file:
                 modules = json.load(file)
-                module_chosen['values'] = (modules['10'], modules['9'], modules['5'])
+                module_dropdown['values'] = (modules['10'], modules['9'], modules['5'])
 
-            module_chosen.grid(row=5, column=1, pady=15, sticky='w')
+            module_dropdown.grid(row=5, column=1, pady=15, sticky='w')
 
             date_label = tk.Label(edit_popup, text="Date", font=('Arial', 15), bg="white", fg="black")
             date_label.grid(row=6, column=0, pady=15)
-            date_chooser = DateEntry(edit_popup, width=19, background='green', foreground='white', borderwidth=2, date_pattern='dd-mm-yyyy')
+            date_chooser = DateEntry(edit_popup, width=19, background='green', foreground='white', borderwidth=2, date_pattern='yyyy-mm-dd')
+            date_chooser.delete(0, "end")
+            date_chooser.set_date(details["date"])
             date_chooser.grid(row=6, column=1, pady=15, sticky='w')
 
             start_time_label = tk.Label(edit_popup, text="Start Time", font=('Arial', 15), bg="white", fg="black")

@@ -44,8 +44,27 @@ def get_upcoming_events(creds):
         print(f"An error occurred: {error}")
         return []
     
-def retrieve_event_details(id):
-    pass
+def retrieve_event_details(creds, id):
+    try:
+        """
+        Retrieves the details of a specific event using its ID.
+        """
+        service = build("calendar", "v3", credentials=creds)  # Initialize the Calendar API
+        event = service.events().get(calendarId="primary", eventId=id).execute()  # Fetches the event details using the event ID.
+        
+        return {
+            "id": event["id"],
+            "summary": event["summary"],
+            "description": event["description"],
+            "location": event["location"],
+            "colorId": event["colorId"],
+            "start": event["start"].get("dateTime", event["start"].get("date")),
+            "end": event["end"].get("dateTime", event["end"].get("date"))
+        }
+    except HttpError as error:
+        print(f"An error occurred while retrieving event details: {error}")
+        return []
+    
 
 
 def add_task(creds, title, desc, module, start_time_hour, start_time_minute, end_time_hour, end_time_minute, date):
