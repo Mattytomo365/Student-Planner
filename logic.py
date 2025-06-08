@@ -58,6 +58,7 @@ def retrieve_event_details(creds, id):
             "description": event["description"],
             "location": event["location"],
             "colorId": event["colorId"],
+            "date": event["start"].get("date", event["start"].get("date")),
             "start": event["start"].get("dateTime", event["start"].get("date")),
             "end": event["end"].get("dateTime", event["end"].get("date"))
         }

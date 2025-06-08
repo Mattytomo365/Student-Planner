@@ -200,11 +200,11 @@ class StudentPlannerApp:
 
         edit_popup = tk.Toplevel(self.main)
         edit_popup.title("Edit Task")
-        edit_popup.geometry("400x550")
+        edit_popup.geometry("400x580")
         edit_popup.configure(bg="white")
         edit_popup.resizable(False, False)
         header = tk.Label(edit_popup, text= "Edit Task", font=('Arial', 30), bg="white", fg="Green")
-        header.grid(row=0, column=0, columnspan=2, padx=140, pady=10)
+        header.grid(row=0, column=0, columnspan=3, padx=140, pady=10)
 
         if events == []:
             no_events_label = tk.Label(edit_popup, text="No tasks to edit", font=('Arial', 15), bg="white", fg="black")
@@ -215,7 +215,7 @@ class StudentPlannerApp:
             task_var = tk.StringVar(edit_popup)
             task_chosen = ttk.Combobox(edit_popup, width=19, textvariable=task_var)
             task_chosen['values'] = [x[1] for x in self.events]
-            task_chosen.grid(row=1, column=1, pady=15, sticky='w')
+            task_chosen.grid(row=1, column=1, pady=15, columnspan=2)
             task_chosen.bind("<<ComboboxSelected>>", task_to_edit)
 
         def prefill_edit_popup(details):
@@ -225,19 +225,19 @@ class StudentPlannerApp:
             title_label.grid(row=2, column=0, pady=15)
             title_entry = tk.Entry(edit_popup, font=('Arial', 15), bg="white", fg="black")
             title_entry.insert(0, str(details["summary"]))
-            title_entry.grid(row=2, column=1, pady=15, sticky='w')
+            title_entry.grid(row=2, column=1, pady=15, columnspan=2)
 
             desc_label = tk.Label(edit_popup, text="Description", font=('Arial', 15), bg="white", fg="black")
             desc_label.grid(row=3, column=0, pady=15)
             desc_entry = tk.Entry(edit_popup, font=('Arial', 15), bg="white", fg="black")
             desc_entry.insert(0, str(details["description"]))
-            desc_entry.grid(row=3, column=1, pady=15, sticky='w')
+            desc_entry.grid(row=3, column=1, pady=15, columnspan=2)
 
             location_label = tk.Label(edit_popup, text="Location", font=('Arial', 15), bg="white", fg="black")
             location_label.grid(row=4, column=0, pady=15)
             location_entry = tk.Entry(edit_popup, font=('Arial', 15), bg="white", fg="black")
             location_entry.insert(0, str(details["location"]))
-            location_entry.grid(row=4, column=1, pady=15, sticky='w')
+            location_entry.grid(row=4, column=1, pady=15, columnspan=2)
 
             with open ("modules.json", "r") as f:
                 modules = json.load(f)
@@ -254,37 +254,54 @@ class StudentPlannerApp:
                 modules = json.load(file)
                 module_dropdown['values'] = (modules['10'], modules['9'], modules['5'])
 
-            module_dropdown.grid(row=5, column=1, pady=15, sticky='w')
+            module_dropdown.grid(row=5, column=1, pady=15, columnspan=2)
 
             date_label = tk.Label(edit_popup, text="Date", font=('Arial', 15), bg="white", fg="black")
             date_label.grid(row=6, column=0, pady=15)
             date_chooser = DateEntry(edit_popup, width=19, background='green', foreground='white', borderwidth=2, date_pattern='yyyy-mm-dd')
             date_chooser.delete(0, "end")
-            date_chooser.set_date(details["date"])
-            date_chooser.grid(row=6, column=1, pady=15, sticky='w')
+            start_date_time = details["start"]
+            date_chooser.set_date(start_date_time[:-15])
+            date_chooser.grid(row=6, column=1, pady=15, columnspan=2)
 
             start_time_label = tk.Label(edit_popup, text="Start Time", font=('Arial', 15), bg="white", fg="black")
             start_time_label.grid(row=7, column=0, pady=15)
 
-            start_time_picker = SpinTimePickerModern(edit_popup)
-            start_time_picker.addAll(constants.HOURS24)  # adds hours clock, minutes and period
-            start_time_picker.configureAll(bg="white", height=1, fg="black", font=("Arial", 15),
-                                    clickedcolor="green")
-            start_time_picker.configure_separator(bg="white", fg="black")
-            start_time_picker.grid(row=7, column=1, pady=15, sticky='w')
+            start_hour_picker = tk.Spinbox(edit_popup, from_=1, to=24, font=("Arial", 15), bg="white", fg="green", width=8)
+            start_hour_picker.grid(row=7, column=1, pady=15)
+
+            start_minute_picker = tk.Spinbox(edit_popup, from_=00, to=59, font=("Arial", 15), bg="white", fg="green", width=8)
+            start_minute_picker.grid(row=7, column=2, pady=15, sticky='w')
+
+            # start_time_picker = SpinTimePickerModern(edit_popup)
+            # start_time_picker.addAll(constants.HOURS24)  # adds hours clock, minutes and period
+            # start_time_picker.configureAll(bg="white", height=1, fg="black", font=("Arial", 15),
+            #                         clickedcolor="green")
+            # start_time_picker.configure_separator(bg="white", fg="black")
+
+            # start_time = start_date_time[11:13]
+            # start_minute = start_date_time[14:16]
+
+            # start_time_picker.grid(row=7, column=1, pady=15, sticky='w')
 
             end_time_label = tk.Label(edit_popup, text="End Time", font=('Arial', 15), bg="white", fg="black")
             end_time_label.grid(row=8, column=0, pady=15)
 
-            end_time_picker = SpinTimePickerModern(edit_popup)
-            end_time_picker.addAll(constants.HOURS24)  # adds hours clock, minutes and period
-            end_time_picker.configureAll(bg="white", height=1, fg="black", font=("Arial", 15),
-                                    clickedcolor="green")
-            end_time_picker.configure_separator(bg="white", fg="black")
-            end_time_picker.grid(row=8, column=1, pady=15, sticky='w')
+            end_hour_picker = tk.Spinbox(edit_popup, from_=1, to=24, font=("Arial", 15), bg="white", fg="green", width=8)
+            end_hour_picker.grid(row=8, column=1, pady=15)
+
+            end_minute_picker = tk.Spinbox(edit_popup, from_=00, to=59, font=("Arial", 15), bg="white", fg="green", width=8)
+            end_minute_picker.grid(row=8, column=2, pady=15, sticky='w')
+
+            # end_time_picker = SpinTimePickerModern(edit_popup)
+            # end_time_picker.addAll(constants.HOURS24)  # adds hours clock, minutes and period
+            # end_time_picker.configureAll(bg="white", height=1, fg="black", font=("Arial", 15),
+            #                         clickedcolor="green")
+            # end_time_picker.configure_separator(bg="white", fg="black")
+            # end_time_picker.grid(row=8, column=1, pady=15, sticky='w')
 
             edit_task_button = ttk.Button(edit_popup, text="Save", style="Green.TButton", command=lambda: edit_task(self.creds))
-            edit_task_button.grid(row=9, column=0, pady=8, columnspan=2)
+            edit_task_button.grid(row=9, column=0, pady=8, columnspan=3)
 
 
     def delete_task_popup(self, events):
