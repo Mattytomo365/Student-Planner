@@ -195,7 +195,7 @@ class StudentPlannerApp:
         end_time_picker = tk.Spinbox(add_popup, values=self.time_values(), wrap=True, repeatinterval=10, state='readonly', font=("Arial", 15), readonlybackground='white', fg="green", width=18)
         end_time_picker.grid(row=6, column=1, pady=15, sticky='w')
 
-        add_task_button = ttk.Button(add_popup, text="Add", style="Green.TButton", command=lambda: [add_task(self.creds, title_entry.get(), desc_entry.get(), module_dropdown.get(), start_time_picker.get(), end_time_picker.get(), date_chooser.get_date()), self.construct_checklist(), add_popup.destroy()])
+        add_task_button = ttk.Button(add_popup, text="Add", style="Green.TButton", command=lambda: [add_task(self.creds, title_entry.get(), desc_entry.get(), module_dropdown.get(), start_time_picker.get(), end_time_picker.get(), date_chooser.get_date()), self.saved_states(), self.construct_checklist(), add_popup.destroy()])
         add_task_button.grid(row=7, column=0, pady=15, columnspan=2)
 
     def edit_task_popup(self, events):
