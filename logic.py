@@ -68,7 +68,7 @@ def retrieve_event_details(creds, id):
     
 
 
-def add_task(creds, title, desc, module, start_time_hour, start_time_minute, end_time_hour, end_time_minute, date):
+def add_task(creds, title, desc, module, start_time, end_time, date):
 
     try:
         service = build("calendar", "v3", credentials=creds)  # Initialize the Calendar API
@@ -82,10 +82,9 @@ def add_task(creds, title, desc, module, start_time_hour, start_time_minute, end
                 colour = 5
                 
         print(date)
-        print(start_time_hour)
-        print(start_time_minute)
-        print(end_time_hour)
-        print(end_time_minute)
+        print(start_time[:5])
+        print(end_time[:5])
+        print(f"{date}T{start_time}:00")
 
         # CAN I REMOVE LOCATION, RECURRENCE AND ATTENDEES?
         # Allow for the user to view the description they added?
@@ -96,11 +95,11 @@ def add_task(creds, title, desc, module, start_time_hour, start_time_minute, end
             "description": f"{desc}",
             "colorId": colour,
             "start": {
-                "dateTime": f"{date}T{start_time_hour}:{start_time_minute}:00",
+                "dateTime": f"{date}T{start_time[:5]}:00",
                 "timeZone": "Europe/London",
             },
             "end": {
-                "dateTime": f"{date}T{end_time_hour}:{end_time_minute}:00",
+                "dateTime": f"{date}T{end_time[:5]}:00",
                 "timeZone": "Europe/London",
             },
             "recurrence": [ # Remove
