@@ -125,11 +125,14 @@ class StudentPlannerApp:
         add_assignment_button = ttk.Button(other_action_frame, text="Add Assignment", style="Green.TButton", command=self.add_assignment_popup)
         add_assignment_button.grid(row=1, column=1, padx=10, pady=10)
 
-        add_modules_button = ttk.Button(other_action_frame, text="Add Modules", style="Green.TButton", command=lambda: self.add_modules_popup(add_modules_button, add_button), state="disabled" if file_exists_flag else "normal")
-        add_modules_button.grid(row=1, column=2, padx=10, pady=10)
-
         view_key_button = ttk.Button(other_action_frame, text="View Key", style="Green.TButton", command=self.view_key)
-        view_key_button.grid(row=2, column=1, padx=10, pady=10)
+        view_key_button.grid(row=1, column=2, padx=10, pady=10)
+
+        add_modules_button = ttk.Button(other_action_frame, text="Add Modules", style="Green.TButton", command=lambda: self.add_modules_popup(add_modules_button, add_button), state="disabled" if file_exists_flag else "normal")
+        add_modules_button.grid(row=2, column=1, padx=10, pady=10)
+
+        clear_modules_button = ttk.Button(other_action_frame, text="Clear Modules", style="Green.TButton", command=lambda: self.clear_modules_popup(add_modules_button, add_button), state="normal" if file_exists_flag else "disabled")
+        clear_modules_button.grid(row=2, column=2, padx=10, pady=10)
 
     def time_values(self):
         times = []
