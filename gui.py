@@ -204,7 +204,7 @@ class StudentPlannerApp:
             task = task_chosen.get()
             task_id = next(x[0] for x in self.events if x[1] == task)
             details = retrieve_event_details(self.creds, task_id)
-            prefill_edit_popup(details)
+            prefill_edit_popup(details, task_id)
 
         edit_popup = tk.Toplevel(self.main)
         edit_popup.title("Edit Task")
@@ -226,9 +226,8 @@ class StudentPlannerApp:
             task_chosen.grid(row=1, column=1, pady=15)
             task_chosen.bind("<<ComboboxSelected>>", task_to_edit)
 
-        def prefill_edit_popup(details):
+        def prefill_edit_popup(details, task_id):
             # Autofill fields with selected task details
-
             title_label = tk.Label(edit_popup, text="Title", font=('Arial', 15), bg="white", fg="black")
             title_label.grid(row=2, column=0, pady=15)
             title_entry = tk.Entry(edit_popup, font=('Arial', 15), bg="white", fg="black")
@@ -267,9 +266,6 @@ class StudentPlannerApp:
             date_chooser.set_date(start_date_time[:-15])
             date_chooser.grid(row=5, column=1, pady=15)
 
-
-            print(start_date_time[11:-9])
-
             start_time_label = tk.Label(edit_popup, text="Start Time", font=('Arial', 15), bg="white", fg="black")
             start_time_label.grid(row=6, column=0, pady=15)
 
@@ -298,7 +294,7 @@ class StudentPlannerApp:
             end_time_var.set(end_time)
             end_time_picker.grid(row=7, column=1, pady=15)
 
-            edit_task_button = ttk.Button(edit_popup, text="Save", style="Green.TButton", command=lambda: edit_task(self.creds))
+            edit_task_button = ttk.Button(edit_popup, text="Save", style="Green.TButton", command=lambda: [edit_task(self.creds, task_id, title_entry.get(), desc_entry.get(), module_dropdown.get(), start_time_picker.get(), end_time_picker.get(), date_chooser.get_date()), self.saved_states(), self.construct_checklist(), edit_popup.destroy()])
             edit_task_button.grid(row=8, column=0, pady=8, columnspan=2)
 
 
