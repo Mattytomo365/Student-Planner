@@ -91,7 +91,6 @@ def add_task(creds, title, desc, module, start_time, end_time, date):
 
         event = {
             "summary": f"{title}",
-            "location": "Somewhere", # Remove
             "description": f"{desc}",
             "colorId": colour,
             "start": {
@@ -101,13 +100,7 @@ def add_task(creds, title, desc, module, start_time, end_time, date):
             "end": {
                 "dateTime": f"{date}T{end_time[:5]}:00",
                 "timeZone": "Europe/London",
-            },
-            "recurrence": [ # Remove
-                "RRULE:FREQ=DAILY;COUNT=1"  # Sets the event to recur daily for one occurrence.
-            ],
-            "attendees": [ # Remove
-                {"email": "matty.tom@outlook.com"}
-            ]
+            }
         }
 
     except HttpError as error:
@@ -130,7 +123,6 @@ def edit_task(creds, task_id, title, desc, module, start_time, end_time, date):
 
         event = {
             "summary": f"{title}",
-            "location": "Somewhere", # Remove
             "description": f"{desc}",
             "colorId": colour,
             "start": {
@@ -140,20 +132,13 @@ def edit_task(creds, task_id, title, desc, module, start_time, end_time, date):
             "end": {
                 "dateTime": f"{date}T{end_time[:5]}:00",
                 "timeZone": "Europe/London",
-            },
-            "recurrence": [ # Remove
-                "RRULE:FREQ=DAILY;COUNT=1"  # Sets the event to recur daily for one occurrence.
-            ],
-            "attendees": [ # Remove
-                {"email": "matty.tom@outlook.com"}
-            ]
+            }
         }
     
     except HttpError as error:
         print(f"An error occurred: {error}")
     
-    # event = service.events().update(calendarId="primary", body=event, eventId=task_id).execute()
-    event = service.events().patch(calendarId="primary", eventId=task_id, body=event).execute()
+    event = service.events().patch(calendarId="primary", eventId=task_id, body=event).execute() # sendNotifications=False ??
 
 def delete_task(creds):
     pass
