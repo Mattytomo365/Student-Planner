@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, messagebox
 from tkcalendar import DateEntry
 from tktimepicker import SpinTimePickerModern
 from tktimepicker import constants
@@ -128,10 +128,10 @@ class StudentPlannerApp:
         view_key_button = ttk.Button(other_action_frame, text="View Key", style="Green.TButton", command=self.view_key)
         view_key_button.grid(row=1, column=2, padx=10, pady=10)
 
-        add_modules_button = ttk.Button(other_action_frame, text="Add Modules", style="Green.TButton", command=lambda: self.add_modules_popup(add_modules_button, add_button), state="disabled" if file_exists_flag else "normal")
+        add_modules_button = ttk.Button(other_action_frame, text="Add Modules", style="Green.TButton", command=lambda: self.add_modules_popup(add_modules_button, add_button, clear_modules_button), state="disabled" if file_exists_flag else "normal")
         add_modules_button.grid(row=2, column=1, padx=10, pady=10)
 
-        clear_modules_button = ttk.Button(other_action_frame, text="Clear Modules", style="Green.TButton", command=lambda: self.clear_modules_popup(add_modules_button, add_button), state="normal" if file_exists_flag else "disabled")
+        clear_modules_button = ttk.Button(other_action_frame, text="Clear Modules", style="Green.TButton", command=lambda: self.clear_modules(add_modules_button, add_button, clear_modules_button), state="normal" if file_exists_flag else "disabled")
         clear_modules_button.grid(row=2, column=2, padx=10, pady=10)
 
     def time_values(self):
@@ -369,7 +369,7 @@ class StudentPlannerApp:
 
 
 
-    def add_modules_popup(self, button_to_disable, button_to_enable):
+    def add_modules_popup(self, button_to_disable, button_to_enable_1, button_to_enable_2):
 
         modules_popup = tk.Toplevel(self.main)
         modules_popup.title("Add Modules")
@@ -397,13 +397,24 @@ class StudentPlannerApp:
 
         def save_modules():
             add_modules(module_1_entry.get(), module_2_entry.get(), module_3_entry.get())
-            self.refresh_main_window()
+            #self.refresh_main_window()
             modules_popup.destroy()
             button_to_disable.config(state="disabled")
-            button_to_enable.config(state="normal")
+            button_to_enable_1.config(state="normal")
+            button_to_enable_2.config(state="normal")
 
         add_modules_button = ttk.Button(modules_popup, text="Save", style="Green.TButton", command=save_modules)
         add_modules_button.place(x=200, y=300, anchor=tk.CENTER)
+
+    def clear_modules(self, button_to_enable, button_to_disable_1, button_to_disable_2):
+        if file_exists("modules.json"):
+            os.remove("modules.json")
+        else:
+            messagebox.showerror(title='Error', message='There are no modules to delete')
+
+        button_to_disable_1.config(state="disabled")
+        button_to_disable_2.config(state="disabled")
+        button_to_enable.config(state="normal")
 
     def saved_states(self):
         """
