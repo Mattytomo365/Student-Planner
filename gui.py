@@ -113,7 +113,7 @@ class StudentPlannerApp:
         edit_button = ttk.Button(task_actions_frame, text="Edit Task", style="Green.TButton", command=lambda: self.edit_task_popup(self.events))
         edit_button.grid(row=1, column=2, padx=10, pady=10)
 
-        delete_button = ttk.Button(task_actions_frame, text="Delete Task", style="Green.TButton", command=lambda: self.delete_task_popup(self.events))
+        delete_button = ttk.Button(task_actions_frame, text="Delete Task", style="Green.TButton", command=lambda: self.delete_date_popup())
         delete_button.grid(row=2, column=1, padx=10, pady=10)
 
         other_action_frame = tk.Frame(main, width=40, height=20, bg = "white", highlightbackground="black", highlightthickness=1)
@@ -207,7 +207,7 @@ class StudentPlannerApp:
             task = task_chosen.get()
             task_id = next(x[0] for x in self.events if x[1] == task)
             details = retrieve_event_details(self.creds, task_id)
-            prefill_edit_popup(details, task_id)
+            edit_popup_specific(details, task_id)
 
         edit_popup = tk.Toplevel(self.main)
         edit_popup.title("Edit Task")
@@ -229,7 +229,7 @@ class StudentPlannerApp:
             task_chosen.grid(row=1, column=1, pady=15)
             task_chosen.bind("<<ComboboxSelected>>", task_to_edit)
 
-        def prefill_edit_popup(details, task_id):
+        def edit_popup_specific(details, task_id):
             # Autofill fields with selected task details
             title_label = tk.Label(edit_popup, text="Title", font=('Arial', 15), bg="white", fg="black")
             title_label.grid(row=2, column=0, pady=15)
@@ -300,15 +300,16 @@ class StudentPlannerApp:
             edit_task_button = ttk.Button(edit_popup, text="Save", style="Green.TButton", command=lambda: [edit_task(self.creds, task_id, title_entry.get(), desc_entry.get(), module_dropdown.get(), start_time_picker.get(), end_time_picker.get(), date_chooser.get_date()), self.saved_states(), self.construct_checklist(), edit_popup.destroy()])
             edit_task_button.grid(row=8, column=0, pady=8, columnspan=2)
 
-
-    def delete_task_popup(self, events):
+    def delete_task_popup(self, creds, date): # 2025-06-20
         delete_popup = tk.Toplevel(self.main)
         delete_popup.title("Delete Task")
         delete_popup.geometry("400x200")
         delete_popup.configure(bg="white")
         delete_popup.resizable(False, False)
         header = tk.Label(delete_popup, text= "Delete Task", font=('Arial', 30), bg="white", fg="Green")
-        header.place(x=200, y=30, anchor=tk.CENTER)
+        header.grid(row=0, column=0, columnspan=2, padx=120, pady=10)
+
+        events = get_event_by_date(creds, date)
 
         if events == []:
             no_events_label = tk.Label(delete_popup, text="No tasks to delete", font=('Arial', 15), bg="white", fg="black")
@@ -321,8 +322,28 @@ class StudentPlannerApp:
             task_chosen['values'] = events
             task_chosen.place(x=250, y=100, anchor=tk.CENTER)
 
-            delete_task_button = ttk.Button(delete_popup, text="Delete", style="Green.TButton", command=lambda: delete_task(self.creds))
-            delete_task_button.place(x=200, y=170, anchor=tk.CENTER)
+        delete_task_button = ttk.Button(delete_popup, text="Delete", style="Green.TButton", command=lambda: delete_task(self.creds))
+        delete_task_button.grid(row=2, column=0, columnspan=2, pady=10)
+
+
+    def delete_date_popup(self):
+        delete_date_popup = tk.Toplevel(self.main)
+        delete_date_popup.title("Delete Task")
+        delete_date_popup.geometry("400x200")
+        delete_date_popup.configure(bg="white")
+        delete_date_popup.resizable(False, False)
+        header = tk.Label(delete_date_popup, text= "Delete Task", font=('Arial', 30), bg="white", fg="Green")
+        header.grid(row=0, column=0, columnspan=2, padx=120, pady=10)
+
+
+
+        date_label = tk.Label(delete_date_popup, text="Select Date", font=('Arial', 15), bg="white", fg="black")
+        date_label.grid(row=1, column=0, pady=15)
+        date_chooser = DateEntry(delete_date_popup, width=19, background='green', foreground='white', borderwidth=2, date_pattern='dd-mm-yyyy')
+        date_chooser.grid(row=1, column=1, pady=15, sticky='w')
+
+        submit_date_button = ttk.Button(delete_date_popup, text="Submit", style="Green.TButton", command=lambda: [self.delete_task_popup(self.creds, date_chooser.get_date()), delete_date_popup.withdraw()])
+        submit_date_button.grid(row=2, column=0, columnspan=2, pady=10)
 
     def add_assignment_popup(self):
         add_assignment_popup = tk.Toplevel(self.main)
@@ -397,7 +418,6 @@ class StudentPlannerApp:
 
         def save_modules():
             add_modules(module_1_entry.get(), module_2_entry.get(), module_3_entry.get())
-            #self.refresh_main_window()
             modules_popup.destroy()
             button_to_disable.config(state="disabled")
             button_to_enable_1.config(state="normal")
