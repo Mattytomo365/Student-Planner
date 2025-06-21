@@ -43,6 +43,40 @@ def get_upcoming_events(creds):
     except HttpError as error:
         print(f"An error occurred: {error}")
         return []
+
+def get_event_by_date(creds, specified_date):
+    try:
+        service = build("calendar", "v3", credentials=creds)
+
+        specified_date = datetime.datetime(specified_date.year, specified_date.month, specified_date.day)
+
+        specified_day = specified_date.replace(hour=0, minute=0, second=0, microsecond=0).astimezone().isoformat()
+        day_after = ((specified_date.replace(hour=0, minute=0, second=0, microsecond=0).astimezone()) + datetime.timedelta(days=1)).isoformat() # Gets the time for tomorrow in UTC format.
+        events_result = (
+         service.events()
+            .list(
+                calendarId="primary",
+                timeMin=specified_day, 
+                timeMax=day_after, 
+                singleEvents=True, 
+                orderBy="startTime",
+            )
+            .execute() 
+        )
+        events = events_result.get("items", [])
+
+        if not events:
+            return [("no_event_id", "No tasks to delete")]
+
+        results = []
+        for event in events:
+            results.append((event["id"], event["summary"]))
+        
+        return results
+
+    except HttpError as error:
+        print(f"An error occurred: {error}")
+        return []
     
 def retrieve_event_details(creds, id):
     try:
