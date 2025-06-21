@@ -300,7 +300,17 @@ class StudentPlannerApp:
             edit_task_button = ttk.Button(edit_popup, text="Save", style="Green.TButton", command=lambda: [edit_task(self.creds, task_id, title_entry.get(), desc_entry.get(), module_dropdown.get(), start_time_picker.get(), end_time_picker.get(), date_chooser.get_date()), self.saved_states(), self.construct_checklist(), edit_popup.destroy()])
             edit_task_button.grid(row=8, column=0, pady=8, columnspan=2)
 
-    def delete_task_popup(self, creds, specified_date):
+    def delete_task_popup(self, specified_date):
+        def get_task_id(task_title):
+            for event in events:
+                if event[1] == task_title:
+                    task_id = event[0]
+            #lambda: [delete_task(self.creds, task_id), self.saved_states(), self.construct_checklist(), delete_popup.destroy()]
+            delete_task(self.creds, task_id)
+            self.saved_states()
+            self.construct_checklist()
+            delete_popup.destroy()
+        
         delete_popup = tk.Toplevel(self.main)
         delete_popup.title("Delete Task")
         delete_popup.geometry("400x200")
@@ -309,7 +319,7 @@ class StudentPlannerApp:
         header = tk.Label(delete_popup, text= "Delete Task", font=('Arial', 30), bg="white", fg="Green")
         header.grid(row=0, column=0, columnspan=2, padx=120, pady=10)
 
-        events = get_event_by_date(creds, specified_date)
+        events = get_event_by_date(self.creds, specified_date)
         event_to_delete = True
         for event in events:
             if event[1] == 'No tasks to delete':
@@ -323,7 +333,7 @@ class StudentPlannerApp:
         task_chosen['values'] = [x[1] for x in events]
         task_chosen.grid(row=1, column=1, pady=15, sticky='w')
 
-        delete_task_button = ttk.Button(delete_popup, text="Delete", style="Green.TButton", state='disabled' if not event_to_delete else 'normal', command=lambda: delete_task(self.creds))
+        delete_task_button = ttk.Button(delete_popup, text="Delete", style="Green.TButton", state='disabled' if not event_to_delete else 'normal', command=lambda: get_task_id(task_chosen.get()))
         delete_task_button.grid(row=2, column=0, columnspan=2, pady=10)
 
 
@@ -341,7 +351,7 @@ class StudentPlannerApp:
         date_chooser = DateEntry(delete_date_popup, width=19, background='green', foreground='white', borderwidth=2, date_pattern='dd-mm-yyyy')
         date_chooser.grid(row=1, column=1, pady=15, sticky='w')
 
-        submit_date_button = ttk.Button(delete_date_popup, text="Submit", style="Green.TButton", command=lambda: [self.delete_task_popup(self.creds, date_chooser.get_date()), delete_date_popup.withdraw()])
+        submit_date_button = ttk.Button(delete_date_popup, text="Submit", style="Green.TButton", command=lambda: [self.delete_task_popup(date_chooser.get_date()), delete_date_popup.withdraw()])
         submit_date_button.grid(row=2, column=0, columnspan=2, pady=10)
 
     def add_assignment_popup(self):

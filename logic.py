@@ -174,8 +174,12 @@ def edit_task(creds, task_id, title, desc, module, start_time, end_time, date):
     
     event = service.events().patch(calendarId="primary", eventId=task_id, body=event).execute() # sendNotifications=False ??
 
-def delete_task(creds):
-    pass
+def delete_task(creds, task_id):
+    try:
+        service = build("calendar", "v3", credentials=creds)
+        service.events().delete(calendarId="primary", eventId=task_id).execute()
+    except HttpError as error:
+        print(f"An error occurred: {error}")
 
 def add_assignment(creds):
     pass
