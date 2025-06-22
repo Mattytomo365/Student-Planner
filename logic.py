@@ -114,14 +114,6 @@ def add_task(creds, title, desc, module, start_time, end_time, date):
                 colour = 9
             elif modules['5'] == module:
                 colour = 5
-                
-        print(date)
-        print(start_time[:5])
-        print(end_time[:5])
-        print(f"{date}T{start_time}:00")
-
-        # CAN I REMOVE LOCATION, RECURRENCE AND ATTENDEES?
-        # Allow for the user to view the description they added?
 
         event = {
             "summary": f"{title}",

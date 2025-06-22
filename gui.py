@@ -305,7 +305,6 @@ class StudentPlannerApp:
             for event in events:
                 if event[1] == task_title:
                     task_id = event[0]
-            #lambda: [delete_task(self.creds, task_id), self.saved_states(), self.construct_checklist(), delete_popup.destroy()]
             delete_task(self.creds, task_id)
             self.saved_states()
             self.construct_checklist()
