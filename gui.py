@@ -84,18 +84,22 @@ class StudentPlannerApp:
         self.task_vars = []
 
         print(self.events)
-        for id, summary in self.events:
+        for id, summary, colour_id in self.events:
+            if colour_id == "10":
+                colour = "dark green"
+            elif colour_id == "9":
+                colour = "blue"
+            elif colour_id == "6":
+                colour = "orange"
             var = tk.BooleanVar(value=states.get(id, False))  # Use the saved state if it exists, otherwise default to False
             self.task_vars.append(var)
-            checkbox = tk.Checkbutton(checklist_frame, text=summary, variable=var, bg="white", fg="black", width=30, justify="left", anchor="w", selectcolor="green", padx=3, command=toggle)
+            checkbox = tk.Checkbutton(checklist_frame, text=summary, variable=var, bg="white", fg=colour, width=30, justify="left", anchor="w", selectcolor="green", padx=3, command=toggle, font=("Arial 15 bold"))
             checkbox.grid(row=len(self.task_vars), column=0, sticky="nsw", padx=30, pady=5)
 
         self.progress = ttk.Progressbar(self.main, orient="horizontal", length=345, mode="determinate", style="Green.Horizontal.TProgressbar")
         self.progress.grid(row=3, column=0, padx=45, pady=0, sticky='nw')
 
         toggle()
-
-
 
 
     def construct_buttons(self):
@@ -177,7 +181,7 @@ class StudentPlannerApp:
 
         with open('modules.json', 'r') as file:
             modules = json.load(file)
-            module_dropdown['values'] = (modules['10'], modules['9'], modules['5'])
+            module_dropdown['values'] = (modules['10'], modules['9'], modules['6'])
 
         module_dropdown.grid(row=3, column=1, pady=15, sticky='w')
 
@@ -392,9 +396,9 @@ class StudentPlannerApp:
         
 
         # Draw ovals at different Y positions within the canvas
-        canvas.create_oval(10, 10, 30, 30, fill="green", outline="green")   # top
+        canvas.create_oval(10, 10, 30, 30, fill="green", outline="dark green")   # top
         canvas.create_oval(10, 90, 30, 110, fill="blue", outline="blue")     # middle
-        canvas.create_oval(10, 170, 30, 190, fill="yellow", outline="yellow")# bottom
+        canvas.create_oval(10, 170, 30, 190, fill="orange", outline="orange")# bottom
 
 
 

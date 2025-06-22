@@ -31,12 +31,12 @@ def get_upcoming_events(creds):
         events = events_result.get("items", []) # Gets the list of events from the API response.
 
         if not events:
-            return [("no_event_id", "No events today")]
+            return [(None, "No events today", None)]
 
      # Returns the start and name of the next 10 events
         results = []
         for event in events:
-            results.append((event["id"], event["summary"]))
+            results.append((event["id"], event["summary"], event["colorId"]))
         
         return results
 
@@ -112,8 +112,8 @@ def add_task(creds, title, desc, module, start_time, end_time, date):
                 colour = 10
             elif modules['9'] == module:
                 colour = 9
-            elif modules['5'] == module:
-                colour = 5
+            elif modules['6'] == module:
+                colour = 6
 
         event = {
             "summary": f"{title}",
@@ -144,8 +144,8 @@ def edit_task(creds, task_id, title, desc, module, start_time, end_time, date):
                 colour = 10
             elif modules['9'] == module:
                 colour = 9
-            elif modules['5'] == module:
-                colour = 5
+            elif modules['6'] == module:
+                colour = 6
 
         event = {
             "summary": f"{title}",
