@@ -31,7 +31,7 @@ def get_upcoming_events(creds):
         events = events_result.get("items", []) # Gets the list of events from the API response.
 
         if not events:
-            return [(None, "No events today", None)]
+            return [(None, "No tasks today", None)]
 
      # Returns the start and name of the next 10 events
         results = []
@@ -173,11 +173,9 @@ def delete_task(creds, task_id):
     except HttpError as error:
         print(f"An error occurred: {error}")
 
-def add_assignment(creds):
+def add_assignment(creds, title, module, deadline):
     pass
 
-def view_key():
-    pass
 
 def add_modules(module_1, module_2, module_3):
     """"
@@ -205,9 +203,3 @@ def file_exists(path):
         return True
     else:
         return False
-    
-def get_task_details(task):
-    """
-    Returns the task details.
-    """
-    pass

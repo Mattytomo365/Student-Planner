@@ -1,8 +1,6 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
 from tkcalendar import DateEntry
-from tktimepicker import SpinTimePickerModern
-from tktimepicker import constants
 from logic import *
 from main import *
 
@@ -91,6 +89,8 @@ class StudentPlannerApp:
                 colour = "blue"
             elif colour_id == "6":
                 colour = "orange"
+            elif colour_id == None:
+                colour = "black"
             var = tk.BooleanVar(value=states.get(id, False))  # Use the saved state if it exists, otherwise default to False
             self.task_vars.append(var)
             checkbox = tk.Checkbutton(checklist_frame, text=summary, variable=var, bg="white", fg=colour, width=30, justify="left", anchor="w", selectcolor="green", padx=3, command=toggle, font=("Arial 15 bold"))
@@ -360,11 +360,42 @@ class StudentPlannerApp:
     def add_assignment_popup(self):
         add_assignment_popup = tk.Toplevel(self.main)
         add_assignment_popup.title("Add Assignment")
-        add_assignment_popup.geometry("400x400")
+        add_assignment_popup.geometry("400x340")
         add_assignment_popup.configure(bg="white")
         add_assignment_popup.resizable(False, False)
         header = tk.Label(add_assignment_popup, text= "Add Assignment", font=('Arial', 30), bg="white", fg="Green")
-        header.place(x=200, y=30, anchor=tk.CENTER)
+        header.grid(row=0, column=0, padx=105, pady=10, columnspan=2)
+
+        title_label = tk.Label(add_assignment_popup, text="Title", font=('Arial', 15), bg="white", fg="black")
+        title_label.grid(row=1, column=0, pady=15)
+        title_entry = tk.Entry(add_assignment_popup, font=('Arial', 15), bg="white", fg="black")
+        title_entry.grid(row=1, column=1, pady=15, sticky='w')
+
+        module_dropdown_label = tk.Label(add_assignment_popup, text="Module", font=('Arial', 15), bg="white", fg="black")
+        module_dropdown_label.grid(row=2, column=0, pady=15)
+        module_var = tk.StringVar(add_assignment_popup)
+        module_dropdown = ttk.Combobox(add_assignment_popup, width=19, textvariable=module_var)
+
+        with open('modules.json', 'r') as file:
+            modules = json.load(file)
+            module_dropdown['values'] = (modules['10'], modules['9'], modules['6'])
+
+        module_dropdown.grid(row=2, column=1, pady=15, sticky='w')
+
+        date_label = tk.Label(add_assignment_popup, text="Date Due", font=('Arial', 15), bg="white", fg="black")
+        date_label.grid(row=3, column=0, pady=15)
+        date_chooser = DateEntry(add_assignment_popup, width=19, background='green', foreground='white', borderwidth=2, date_pattern='dd-mm-yyyy')
+        date_chooser.grid(row=3, column=1, pady=15, sticky='w')
+
+        time_label = tk.Label(add_assignment_popup, text="Time Due", font=('Arial', 15), bg="white", fg="black")
+        time_label.grid(row=4, column=0, pady=15)
+
+        time_picker = tk.Spinbox(add_assignment_popup, values=self.time_values(), wrap=True, repeatinterval=10, state='readonly', font=("Arial", 15), readonlybackground='white', fg="green", width=18)
+        time_picker.grid(row=4, column=1, pady=15, sticky='w')
+
+        add_assignment_button = ttk.Button(add_assignment_popup, text="Delete", style="Green.TButton", command=lambda: [add_assignment(self.creds, title_entry.get(), module_dropdown.get(), date_chooser.get_date()), add_assignment_popup.destroy()])
+        add_assignment_button.grid(row=5, column=0, columnspan=2, pady=10)
+
 
     def view_key(self):
         key_popup = tk.Toplevel(self.main)
