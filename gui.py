@@ -48,6 +48,7 @@ class StudentPlannerApp:
     def construct_checklist(self):
 
         self.events = get_upcoming_events(self.creds)
+        self.assignments = get_upcoming_assignments(self.creds)
 
         def toggle():
             """
@@ -117,10 +118,10 @@ class StudentPlannerApp:
         edit_button = ttk.Button(task_actions_frame, text="Edit Task", style="Green.TButton", command=lambda: self.edit_task_popup(self.events))
         edit_button.grid(row=1, column=2, pady=10, padx=9)
 
-        add_assignment_button = ttk.Button(task_actions_frame, text="Add Assignment", style="Green.TButton", command=self.add_assignment_popup, state="disabled" if not file_exists_flag else "normal")
+        add_assignment_button = ttk.Button(task_actions_frame, text="Add Assignment", style="Green.TButton", command=lambda: self.add_assignment_popup(), state="disabled" if not file_exists_flag else "normal")
         add_assignment_button.grid(row=2, column=1, pady=10, sticky='w', padx=23)
 
-        edit_assignment_button = ttk.Button(task_actions_frame, text="Edit Assignment", style="Green.TButton", command=self.edit_assignment_popup)
+        edit_assignment_button = ttk.Button(task_actions_frame, text="Edit Assignment", style="Green.TButton", command=lambda: self.edit_assignment_popup(self.assignments))
         edit_assignment_button.grid(row=2, column=2, pady=10, padx=9)
 
         delete_button = ttk.Button(task_actions_frame, text="Delete", style="Green.TButton", command=lambda: self.delete_date_popup())
@@ -132,10 +133,10 @@ class StudentPlannerApp:
         other_header = tk.Label(other_action_frame, text="Other Actions", font=("Arial", 20), bg="white", fg="black")
         other_header.grid(row=0, column=1, padx=10, pady=10)
 
-        add_modules_button = ttk.Button(other_action_frame, text="Add Modules", style="Green.TButton", command=lambda: self.add_modules_popup(add_modules_button, add_button, clear_modules_button), state="disabled" if file_exists_flag else "normal")
+        add_modules_button = ttk.Button(other_action_frame, text="Add Modules", style="Green.TButton", command=lambda: self.add_modules_popup(add_modules_button, add_button, clear_modules_button, add_assignment_button), state="disabled" if file_exists_flag else "normal")
         add_modules_button.grid(row=1, column=1, padx=10, pady=10)
 
-        clear_modules_button = ttk.Button(other_action_frame, text="Clear Modules", style="Green.TButton", command=lambda: self.clear_modules(add_modules_button, add_button, clear_modules_button), state="normal" if file_exists_flag else "disabled")
+        clear_modules_button = ttk.Button(other_action_frame, text="Clear Modules", style="Green.TButton", command=lambda: self.clear_modules(add_modules_button, add_button, clear_modules_button, add_assignment_button), state="normal" if file_exists_flag else "disabled")
         clear_modules_button.grid(row=1, column=2, padx=10, pady=10)
 
         view_key_button = ttk.Button(other_action_frame, text="View Key", style="Green.TButton", command=self.view_key)
@@ -160,7 +161,7 @@ class StudentPlannerApp:
     def add_task_popup(self):
         add_popup = tk.Toplevel(self.main)
         add_popup.title("Add Task")
-        add_popup.geometry("400x450")
+        add_popup.geometry("400x420")
         add_popup.configure(bg="white")
         add_popup.resizable(False, False)
 
@@ -213,7 +214,7 @@ class StudentPlannerApp:
 
         edit_popup = tk.Toplevel(self.main)
         edit_popup.title("Edit Task")
-        edit_popup.geometry("400x510")
+        edit_popup.geometry("400x460")
         edit_popup.configure(bg="white")
         edit_popup.resizable(False, False)
         header = tk.Label(edit_popup, text= "Edit Task", font=('Arial', 30), bg="white", fg="Green")
@@ -252,7 +253,7 @@ class StudentPlannerApp:
 
             with open('modules.json', 'r') as file:
                 modules = json.load(file)
-                module_dropdown['values'] = (modules['10'], modules['9'], modules['5'])
+                module_dropdown['values'] = (modules['10'], modules['9'], modules['6'])
 
             module_dropdown.grid(row=3, column=1, pady=15)
 
@@ -388,8 +389,83 @@ class StudentPlannerApp:
         add_assignment_button = ttk.Button(add_assignment_popup, text="Add", style="Green.TButton", command=lambda: [add_assignment(self.creds, title_entry.get(), module_dropdown.get(), date_chooser.get_date(), time_picker.get()), add_assignment_popup.destroy()])
         add_assignment_button.grid(row=5, column=0, columnspan=2, pady=10)
 
-    def edit_assignment_popup(self):
-        pass
+    def edit_assignment_popup(self, assignments):
+        def assignment_to_edit(event):
+            assignment = assignment_chosen.get()
+            assignment_id = next(x[0] for x in self.assignments if x[1] == assignment)
+            details = retrieve_assignment_details(self.creds, assignment_id)
+            edit_popup_specific(details, assignment_id)
+
+        edit_assignment_popup = tk.Toplevel(self.main)
+        edit_assignment_popup.title("Edit Assignment")
+        edit_assignment_popup.geometry("400x410")
+        edit_assignment_popup.configure(bg="white")
+        edit_assignment_popup.resizable(False, False)
+        header = tk.Label(edit_assignment_popup, text= "Edit Assignment", font=('Arial', 30), bg="white", fg="Green")
+        header.grid(row=0, column=0, columnspan=2, padx=100, pady=10)
+
+        if assignments == []:
+            no_events_label = tk.Label(edit_assignment_popup, text="No assignments to edit", font=('Arial', 15), bg="white", fg="black")
+            no_events_label.grid(row=1, column=0)
+        else:
+            dropdown_label = tk.Label(edit_assignment_popup, text="Assignment", font=('Arial', 15), bg="white", fg="black")
+            dropdown_label.grid(row=1, column=0, pady=15)
+            assignment_var = tk.StringVar(edit_assignment_popup)
+            assignment_chosen = ttk.Combobox(edit_assignment_popup, width=19, textvariable=assignment_var)
+            assignment_chosen['values'] = [x[1] for x in self.assignments]
+            assignment_chosen.grid(row=1, column=1, pady=15)
+            assignment_chosen.bind("<<ComboboxSelected>>", assignment_to_edit)
+
+        def edit_popup_specific(details, assignment_id):
+            title_label = tk.Label(edit_assignment_popup, text="Title", font=('Arial', 15), bg="white", fg="black")
+            title_label.grid(row=2, column=0, pady=15)
+            title_entry = tk.Entry(edit_assignment_popup, font=('Arial', 15), bg="white", fg="black")
+            title_entry.insert(0, str(details["summary"]))
+            title_entry.grid(row=2, column=1, pady=15)
+
+            with open ("modules.json", "r") as f:
+                modules = json.load(f)
+                module = modules[f'{details["colorId"]}']
+
+            module_dropdown_label = tk.Label(edit_assignment_popup, text="Module", font=('Arial', 15), bg="white", fg="black")
+            module_dropdown_label.grid(row=3, column=0, pady=15)
+            module_var = tk.StringVar(edit_assignment_popup)
+            module_dropdown = ttk.Combobox(edit_assignment_popup, width=19, textvariable=module_var)
+            module_dropdown.insert(0, str(module))
+            
+
+            with open('modules.json', 'r') as file:
+                modules = json.load(file)
+                module_dropdown['values'] = (modules['10'], modules['9'], modules['6'])
+
+            module_dropdown.grid(row=3, column=1, pady=15)
+
+            due_date_label = tk.Label(edit_assignment_popup, text="Date Due", font=('Arial', 15), bg="white", fg="black")
+            due_date_label.grid(row=4, column=0, pady=15)
+            due_date_chooser = DateEntry(edit_assignment_popup, width=19, background='green', foreground='white', borderwidth=2, date_pattern='yyyy-mm-dd')
+            due_date_chooser.delete(0, "end")
+            due_date_time = details["start"]
+            due_date_chooser.set_date(due_date_time[:-15])
+            due_date_chooser.grid(row=4, column=1, pady=15)
+
+            due_time_label = tk.Label(edit_assignment_popup, text="Time Due", font=('Arial', 15), bg="white", fg="black")
+            due_time_label.grid(row=5, column=0, pady=15)
+
+            all_times = self.time_values()
+
+            for time in all_times:
+                if (time[:-3]) == due_date_time[11:-9]:
+                    due_time = time
+
+            due_time_var = tk.StringVar(edit_assignment_popup)
+            due_time_picker = tk.Spinbox(edit_assignment_popup, values=self.time_values(), wrap=True, repeatinterval=10, state='readonly', font=("Arial", 15), readonlybackground='white', fg="green", width=18, textvariable=due_time_var)
+            due_time_picker.delete(0, tk.END)
+            due_time_picker.insert(0, due_time)
+            due_time_var.set(due_time)
+            due_time_picker.grid(row=5, column=1, pady=15)
+
+            edit_assignment_button = ttk.Button(edit_assignment_popup, text="Save", style="Green.TButton", command=lambda: [edit_assignment(self.creds, assignment_id, title_entry.get(), module_dropdown.get(), due_date_chooser.get_date(), due_time_picker.get()), edit_assignment_popup.destroy()])
+            edit_assignment_button.grid(row=7, column=0, pady=8, columnspan=2)
 
 
     def view_key(self):
@@ -428,7 +504,7 @@ class StudentPlannerApp:
 
 
 
-    def add_modules_popup(self, button_to_disable, button_to_enable_1, button_to_enable_2):
+    def add_modules_popup(self, button_to_disable, button_to_enable_1, button_to_enable_2, button_to_enable_3):
 
         modules_popup = tk.Toplevel(self.main)
         modules_popup.title("Add Modules")
@@ -460,11 +536,12 @@ class StudentPlannerApp:
             button_to_disable.config(state="disabled")
             button_to_enable_1.config(state="normal")
             button_to_enable_2.config(state="normal")
+            button_to_enable_3.config(state="normal")
 
         add_modules_button = ttk.Button(modules_popup, text="Save", style="Green.TButton", command=save_modules)
         add_modules_button.place(x=200, y=300, anchor=tk.CENTER)
 
-    def clear_modules(self, button_to_enable, button_to_disable_1, button_to_disable_2):
+    def clear_modules(self, button_to_enable, button_to_disable_1, button_to_disable_2, button_to_disable_3):
         if file_exists("modules.json"):
             os.remove("modules.json")
         else:
@@ -472,6 +549,7 @@ class StudentPlannerApp:
 
         button_to_disable_1.config(state="disabled")
         button_to_disable_2.config(state="disabled")
+        button_to_disable_3.config(state="disabled")
         button_to_enable.config(state="normal")
 
     def saved_states(self):

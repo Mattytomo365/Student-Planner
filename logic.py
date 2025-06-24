@@ -7,7 +7,7 @@ import os
 
 def get_upcoming_events(creds):
     """
-    Fetches the next 10 upcoming events from the user's primary Google Calendar.
+    Fetches upcoming events from the user's primary Google Calendar.
     """
     try:
         service = build("calendar", "v3", credentials=creds) # Initialise the Calendar API, connects to calendar service using credentials.
@@ -23,7 +23,6 @@ def get_upcoming_events(creds):
                 timeMin=now, # Only return events that start after the current time.
                 q="task", # Only returns tasks and not assignments
                 timeMax=tomorrow, # Only return events that start before the next day.
-                maxResults=10, 
                 singleEvents=True, # Returns only single events, not recurring events.
                 orderBy="startTime",
             )
@@ -35,6 +34,43 @@ def get_upcoming_events(creds):
             return [(None, "No tasks today", None)]
 
      # Returns the start and name of the next 10 events
+        results = []
+        for event in events:
+            results.append((event["id"], event["summary"], event["colorId"]))
+        
+        return results
+
+    except HttpError as error:
+        print(f"An error occurred: {error}")
+        return []
+    
+def get_upcoming_assignments(creds):
+    """
+    Fetches upcoming assignments from the user's primary Google Calendar.
+    """
+    try:
+        service = build("calendar", "v3", credentials=creds)
+
+        now = datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0).astimezone().isoformat()
+        tomorrow = ((datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0).astimezone()) + datetime.timedelta(days=1)).isoformat()
+        events_result = (
+         service.events()
+            .list(
+                calendarId="primary", 
+                timeMin=now, 
+                q="assignment", # Only returns assignments and not tasks
+                timeMax=tomorrow,
+                maxResults=10, 
+                singleEvents=True,
+                orderBy="startTime",
+            )
+            .execute()
+        )
+        events = events_result.get("items", [])
+
+        if not events:
+            return [(None, "No assignments today", None)]
+
         results = []
         for event in events:
             results.append((event["id"], event["summary"], event["colorId"]))
@@ -79,23 +115,40 @@ def get_event_by_date(creds, specified_date):
         print(f"An error occurred: {error}")
         return []
     
-def retrieve_event_details(creds, id):
+def retrieve_event_details(creds, task_id):
     try:
         """
         Retrieves the details of a specific event using its ID.
         """
         service = build("calendar", "v3", credentials=creds)  # Initialize the Calendar API
-        event = service.events().get(calendarId="primary", eventId=id).execute()  # Fetches the event details using the event ID.
+        event = service.events().get(calendarId="primary", eventId=task_id).execute()  # Fetches the event details using the event ID.
         
         return {
             "id": event["id"],
             "summary": event["summary"],
-            "description": event["description"],
-            "location": event["location"],
             "colorId": event["colorId"],
             "date": event["start"].get("date", event["start"].get("date")),
             "start": event["start"].get("dateTime", event["start"].get("date")),
             "end": event["end"].get("dateTime", event["end"].get("date"))
+        }
+    except HttpError as error:
+        print(f"An error occurred while retrieving event details: {error}")
+        return []
+
+def retrieve_assignment_details(creds, assignment_id):
+    try:
+        """
+        Retrieves the details of a specific assignment using its ID.
+        """
+        service = build("calendar", "v3", credentials=creds)  # Initialize the Calendar API
+        event = service.events().get(calendarId="primary", eventId=assignment_id).execute()  # Fetches the event details using the event ID.
+        
+        return {
+            "id": event["id"],
+            "summary": event["summary"],
+            "colorId": event["colorId"],
+            "date": event["start"].get("date", event["start"].get("date")),
+            "start": event["start"].get("dateTime", event["start"].get("date")),
         }
     except HttpError as error:
         print(f"An error occurred while retrieving event details: {error}")
@@ -188,9 +241,8 @@ def add_assignment(creds, title, module, due_date, due_time):
 
         event = {
             "summary": f"{title}",
-            "description": "assignment",
+            "description": "assignment", # Differentiating assingment events from regular events in the caldendar
             "colorId": colour,
-            "customTypeName": "assignment", # Differentiating assingment events from regular events in the caldendar
             "start": {
                 "dateTime": f"{due_date}T{due_time[:5]}:00",
                 "timeZone": "Europe/London",
@@ -205,6 +257,37 @@ def add_assignment(creds, title, module, due_date, due_time):
         print(f"An error occurred: {error}")
         
     event = service.events().insert(calendarId="primary", body=event).execute()
+
+def edit_assignment(creds, assignment_id, title, module, due_date, due_time):
+    try:
+        service = build("calendar", "v3", credentials=creds)
+        with open ("modules.json", "r") as f:
+            modules = json.load(f)
+            if modules['10'] == module:
+                colour = 10
+            elif modules['9'] == module:
+                colour = 9
+            elif modules['6'] == module:
+                colour = 6
+
+        event = {
+            "summary": f"{title}",
+            "description": "assignment",
+            "colorId": colour,
+            "start": {
+                "dateTime": f"{due_date}T{due_time[:5]}:00",
+                "timeZone": "Europe/London",
+            },
+            "end": {
+                "dateTime": f"{due_date}T{due_time[:5]}:01",
+                "timeZone": "Europe/London",
+            }
+        }
+
+    except HttpError as error:
+        print(f"An error occurred: {error}")
+        
+    event = service.events().patch(calendarId="primary", eventId=assignment_id, body=event).execute()
 
 
 def add_modules(module_1, module_2, module_3):
