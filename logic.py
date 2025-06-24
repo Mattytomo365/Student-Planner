@@ -21,6 +21,7 @@ def get_upcoming_events(creds):
             .list(
                 calendarId="primary", # accesses the user's primary calendar.
                 timeMin=now, # Only return events that start after the current time.
+                q="task", # Only returns tasks and not assignments
                 timeMax=tomorrow, # Only return events that start before the next day.
                 maxResults=10, 
                 singleEvents=True, # Returns only single events, not recurring events.
@@ -102,7 +103,7 @@ def retrieve_event_details(creds, id):
     
 
 
-def add_task(creds, title, desc, module, start_time, end_time, date):
+def add_task(creds, title, module, start_time, end_time, date):
 
     try:
         service = build("calendar", "v3", credentials=creds)  # Initialize the Calendar API
@@ -117,7 +118,7 @@ def add_task(creds, title, desc, module, start_time, end_time, date):
 
         event = {
             "summary": f"{title}",
-            "description": f"{desc}",
+            "description": "task",
             "colorId": colour,
             "start": {
                 "dateTime": f"{date}T{start_time[:5]}:00",
@@ -134,7 +135,7 @@ def add_task(creds, title, desc, module, start_time, end_time, date):
         
     event = service.events().insert(calendarId="primary", body=event).execute()  # Inserts the event into the user's primary calendar.
 
-def edit_task(creds, task_id, title, desc, module, start_time, end_time, date):
+def edit_task(creds, task_id, title, module, start_time, end_time, date):
     try:
         service = build("calendar", "v3", credentials=creds)
 
@@ -149,7 +150,7 @@ def edit_task(creds, task_id, title, desc, module, start_time, end_time, date):
 
         event = {
             "summary": f"{title}",
-            "description": f"{desc}",
+            "description": "task",
             "colorId": colour,
             "start": {
                 "dateTime": f"{date}T{start_time[:5]}:00",
@@ -173,8 +174,37 @@ def delete_task(creds, task_id):
     except HttpError as error:
         print(f"An error occurred: {error}")
 
-def add_assignment(creds, title, module, deadline):
-    pass
+def add_assignment(creds, title, module, due_date, due_time):
+    try:
+        service = build("calendar", "v3", credentials=creds)
+        with open ("modules.json", "r") as f:
+            modules = json.load(f)
+            if modules['10'] == module:
+                colour = 10
+            elif modules['9'] == module:
+                colour = 9
+            elif modules['6'] == module:
+                colour = 6
+
+        event = {
+            "summary": f"{title}",
+            "description": "assignment",
+            "colorId": colour,
+            "customTypeName": "assignment", # Differentiating assingment events from regular events in the caldendar
+            "start": {
+                "dateTime": f"{due_date}T{due_time[:5]}:00",
+                "timeZone": "Europe/London",
+            },
+            "end": {
+                "dateTime": f"{due_date}T{due_time[:5]}:01",
+                "timeZone": "Europe/London",
+            }
+        }
+
+    except HttpError as error:
+        print(f"An error occurred: {error}")
+        
+    event = service.events().insert(calendarId="primary", body=event).execute()
 
 
 def add_modules(module_1, module_2, module_3):
