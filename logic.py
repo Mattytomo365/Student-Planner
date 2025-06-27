@@ -44,7 +44,7 @@ def get_upcoming_events(creds):
         print(f"An error occurred: {error}")
         return []
     
-def get_upcoming_assignments(creds):
+def get_assignments(creds, upcoming):
     """
     Fetches upcoming assignments from the user's primary Google Calendar.
     """
@@ -53,23 +53,36 @@ def get_upcoming_assignments(creds):
 
         now = datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0).astimezone().isoformat()
         tomorrow = ((datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0).astimezone()) + datetime.timedelta(days=1)).isoformat()
-        events_result = (
-         service.events()
-            .list(
-                calendarId="primary", 
-                timeMin=now, 
-                q="assignment", # Only returns assignments and not tasks
-                timeMax=tomorrow,
-                maxResults=10, 
-                singleEvents=True,
-                orderBy="startTime",
+        if upcoming == True:  # Retrieves assignments due on the current day
+            events_result = (
+            service.events()
+                .list(
+                    calendarId="primary",
+                    timeMin=now,
+                    q="task",
+                    timeMax=tomorrow,
+                    singleEvents=True,
+                    orderBy="startTime",
             )
             .execute()
         )
+        else: # Retrieves all assignments
+            events_result = (
+            service.events()
+                .list(
+                    calendarId="primary", 
+                    timeMin = now,
+                    q="assignment", # Only returns assignments and not tasks
+                    maxResults=10, 
+                    singleEvents=True,
+                    orderBy="startTime",
+                )
+                .execute()
+            )
         events = events_result.get("items", [])
 
         if not events:
-            return [(None, "No assignments today", None)]
+            return [(None, "No assignments", None)]
 
         results = []
         for event in events:

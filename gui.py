@@ -48,7 +48,8 @@ class StudentPlannerApp:
     def construct_checklist(self):
 
         self.events = get_upcoming_events(self.creds)
-        self.assignments = get_upcoming_assignments(self.creds)
+        self.upcoming_assignments = get_assignments(self.creds, True)
+        self.assignments = get_assignments(self.creds, False)
 
         def toggle():
             """
