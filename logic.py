@@ -55,23 +55,23 @@ def get_assignments(creds, upcoming):
         tomorrow = ((datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0).astimezone()) + datetime.timedelta(days=1)).isoformat()
         if upcoming == True:  # Retrieves assignments due on the current day
             events_result = (
-            service.events()
+                service.events()
                 .list(
                     calendarId="primary",
                     timeMin=now,
-                    q="task",
+                    q="assignment",
                     timeMax=tomorrow,
                     singleEvents=True,
                     orderBy="startTime",
+                )
+                .execute()
             )
-            .execute()
-        )
+            events = events_result.get("items", [])
         else: # Retrieves all assignments
             events_result = (
             service.events()
                 .list(
                     calendarId="primary", 
-                    timeMin = now,
                     q="assignment", # Only returns assignments and not tasks
                     maxResults=10, 
                     singleEvents=True,
@@ -79,7 +79,7 @@ def get_assignments(creds, upcoming):
                 )
                 .execute()
             )
-        events = events_result.get("items", [])
+            events = events_result.get("items", [])
 
         if not events:
             return [(None, "No assignments", None)]

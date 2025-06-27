@@ -45,6 +45,11 @@ class StudentPlannerApp:
         self.construct_checklist()
         self.construct_buttons()
 
+        for assignment in self.upcoming_assignments:
+            print(assignment[1]) 
+            if assignment[1] != 'No assignments':
+                messagebox.showinfo(title='Reminder', message=f'You have an upcoming deadline for {assignment[1]} today')
+
     def construct_checklist(self):
 
         self.events = get_upcoming_events(self.creds)
