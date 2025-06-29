@@ -38,6 +38,7 @@ class StudentPlannerApp:
         # Screen header
         now = datetime.datetime.now()
         day_of_week = now.strftime("%A %d %B")
+        today = now.strftime('%Y-%m-%d')
 
         header = tk.Label(main, text=day_of_week, font=("Arial", 40), bg="white", fg="green")
         header.grid(row=0, column=0, columnspan=2, sticky="nsw", padx=210, pady=5)
@@ -45,10 +46,21 @@ class StudentPlannerApp:
         self.construct_checklist()
         self.construct_buttons()
 
-        for assignment in self.upcoming_assignments:
-            print(assignment[1]) 
-            if assignment[1] != 'No assignments':
+
+        with open('reminder.json', 'r') as file:
+            reminder = json.load(file)
+            reminded = reminder['reminded']
+            reminder_date = reminder['date']
+
+        for assignment in self.upcoming_assignments: 
+            if assignment[1] != 'No assignments' and reminded == 'False':
                 messagebox.showinfo(title='Reminder', message=f'You have an upcoming deadline for {assignment[1]} today')
+                reminded = 'True'
+            if reminded == 'True' and reminder_date[-2:] == (int(today[-2:]) + 1):
+                reminded = 'False'
+
+        save_reminder_state(reminded, today)
+
 
     def construct_checklist(self):
 

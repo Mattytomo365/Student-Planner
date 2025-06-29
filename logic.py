@@ -316,8 +316,18 @@ def add_modules(module_1, module_2, module_3):
     # Serializing json
     json_object = json.dumps(dictionary, indent=4)
  
-    # Writing to sample.json
     with open("modules.json", "w") as outfile:
+        outfile.write(json_object)
+
+def save_reminder_state(reminded, date):
+    dictionary ={
+        "reminded": f"{reminded}",
+        "date": f"{date}"
+    }
+
+    json_object = json.dumps(dictionary, indent=4)
+
+    with open("reminder.json", "w") as outfile:
         outfile.write(json_object)
 
 def file_exists(path):
