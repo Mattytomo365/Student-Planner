@@ -6,6 +6,9 @@ from main import *
 
 
 class StudentPlannerApp:
+
+    # Initialisation functions
+
     def __init__(self, main):
         self.main = main
         self.main.geometry("800x650")
@@ -35,7 +38,6 @@ class StudentPlannerApp:
                         text="Progress")
         
     def build_main_window(self):
-        # Screen header
         now = datetime.datetime.now()
         day_of_week = now.strftime("%A %d %B")
         today = now.strftime('%Y-%m-%d')
@@ -160,6 +162,37 @@ class StudentPlannerApp:
         view_key_button = ttk.Button(other_action_frame, text="View Key", style="Green.TButton", command=self.view_key)
         view_key_button.grid(row=2, column=1, padx=10, pady=10)
 
+    # Validation functions
+
+    def entry_validation(self, **kwargs):
+        for entry_name, entry_value in kwargs.items():
+            if entry_value == "" or " ":
+                messagebox.showerror(title="Error", message=f"{entry_name} must be filled")
+                return False
+        return True
+
+    def dropdown_validation(self, dropdowns):
+        for dropdown_name, dropdown_value, dropdown_values in dropdowns:
+            if dropdown_value == "" or " ":
+                messagebox.showerror(title="Error", message=f"{dropdown_name} must be selected")
+                return False
+            elif dropdown_value not in dropdown_values:
+                messagebox.showerror(title="Error", message=f"Invalid selection in {dropdown_name}")
+                return False
+            return True
+
+    def date_validation(self, date):
+        pass
+
+    def time_validation(self, time):
+        pass
+
+    def on_task_submit(self):
+        pass
+
+    def on_assignment_submit(self):
+        pass
+
     def time_values(self):
         times = []
         postfix = 'AM'
@@ -175,6 +208,8 @@ class StudentPlannerApp:
             times.append(f'{hour}:{minutes} {postfix}')
 
         return times
+
+    # Popup functions
 
     def add_task_popup(self):
         add_popup = tk.Toplevel(self.main)
@@ -569,6 +604,8 @@ class StudentPlannerApp:
         button_to_disable_2.config(state="disabled")
         button_to_disable_3.config(state="disabled")
         button_to_enable.config(state="normal")
+
+    # On close functions
 
     def saved_states(self):
         """
