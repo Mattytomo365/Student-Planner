@@ -3,7 +3,7 @@ from tkinter import ttk, messagebox
 from tkcalendar import DateEntry
 from logic import *
 from main import *
-
+from datetime import datetime
 
 class StudentPlannerApp:
 
@@ -38,7 +38,7 @@ class StudentPlannerApp:
                         text="Progress")
         
     def build_main_window(self):
-        now = datetime.datetime.now()
+        now = datetime.now()
         day_of_week = now.strftime("%A %d %B")
         today = now.strftime('%Y-%m-%d')
 
@@ -164,35 +164,6 @@ class StudentPlannerApp:
 
     # Validation functions
 
-    def entry_validation(self, **kwargs):
-        for entry_name, entry_value in kwargs.items():
-            if entry_value == "" or " ":
-                messagebox.showerror(title="Error", message=f"{entry_name} must be filled")
-                return False
-        return True
-
-    def dropdown_validation(self, dropdowns):
-        for dropdown_name, dropdown_value, dropdown_values in dropdowns:
-            if dropdown_value == "" or " ":
-                messagebox.showerror(title="Error", message=f"{dropdown_name} must be selected")
-                return False
-            elif dropdown_value not in dropdown_values:
-                messagebox.showerror(title="Error", message=f"Invalid selection in {dropdown_name}")
-                return False
-            return True
-
-    def date_validation(self, date):
-        pass
-
-    def time_validation(self, time):
-        pass
-
-    def on_task_submit(self):
-        pass
-
-    def on_assignment_submit(self):
-        pass
-
     def time_values(self):
         times = []
         postfix = 'AM'
@@ -208,6 +179,71 @@ class StudentPlannerApp:
             times.append(f'{hour}:{minutes} {postfix}')
 
         return times
+
+    def entry_validation(self, **kwargs):
+        for entry_name, entry_value in kwargs.items():
+            if entry_value == "" or entry_value == " ":
+                messagebox.showerror(title="Error", message=f"{entry_name} must be filled")
+                return False
+        return True
+
+    def dropdown_validation(self, dropdowns):
+        for dropdown_name, dropdown_value, dropdown_values in dropdowns:
+            if dropdown_value == "" or dropdown_value == " ":
+                messagebox.showerror(title="Error", message=f"{dropdown_name} must be selected")
+                return False
+            elif dropdown_value not in dropdown_values:
+                messagebox.showerror(title="Error", message=f"Invalid selection in {dropdown_name}")
+                return False
+            return True
+
+    def date_validation(self, date):
+        if not datetime.strptime(str(date), "%Y-%m-%d"):
+            messagebox.showinfo(title='Error', message='Date is invalid')
+            return False
+        else:
+            return True
+
+    def time_validation(self, type, selected_time):
+        if type == 'end' and selected_time == '00:00 AM':
+            messagebox.showinfo(title='Error', message='End time must be current day')
+            return False
+        all_times = self.time_values()
+        for time in all_times:
+            if time == selected_time:
+                return True
+        messagebox.showinfo(title='Error', message=f'{type} time is invalid')
+        return False
+        
+        
+
+    def on_task_submit(self, task_id, title, module_dropdown, start_time, end_time, date, submit_type, popup):
+        valid = True
+        module = module_dropdown.get()
+
+        if not self.entry_validation(title=title):
+            valid = False
+        if not self.dropdown_validation([('module', module, module_dropdown['values'])]):
+            valid = False
+        if not self.time_validation('start', start_time) or not self.time_validation('end', end_time):
+            valid = False
+        if not self.date_validation(date):
+            valid = False
+        
+        if valid:
+            if submit_type == "Add":
+                add_task(self.creds, title, module, start_time, end_time, date)
+                self.saved_states()
+                self.construct_checklist()
+                popup.destroy()
+            else:
+                edit_task(self.creds, task_id, title, module, start_time, end_time, date)
+                self.saved_states()
+                self.construct_checklist()
+                popup.destroy()
+
+    def on_assignment_submit(self):
+        pass
 
     # Popup functions
 
@@ -245,16 +281,16 @@ class StudentPlannerApp:
         start_time_label = tk.Label(add_popup, text="Start Time", font=('Arial', 15), bg="white", fg="black")
         start_time_label.grid(row=4, column=0, pady=15)
 
-        start_time_picker = tk.Spinbox(add_popup, values=self.time_values(), wrap=True, repeatinterval=10, state='readonly', font=("Arial", 15), readonlybackground='white', fg="green", width=18)
+        start_time_picker = tk.Spinbox(add_popup, values=self.time_values(), wrap=True, repeatinterval=10, font=("Arial", 15), bg='white', fg="green", width=18)
         start_time_picker.grid(row=4, column=1, pady=15, sticky='w')
 
         end_time_label = tk.Label(add_popup, text="End Time", font=('Arial', 15), bg="white", fg="black")
         end_time_label.grid(row=5, column=0, pady=15)
 
-        end_time_picker = tk.Spinbox(add_popup, values=self.time_values(), wrap=True, repeatinterval=10, state='readonly', font=("Arial", 15), readonlybackground='white', fg="green", width=18)
+        end_time_picker = tk.Spinbox(add_popup, values=self.time_values(), wrap=True, repeatinterval=10, font=("Arial", 15), bg='white', fg="green", width=18)
         end_time_picker.grid(row=5, column=1, pady=15, sticky='w')
 
-        add_task_button = ttk.Button(add_popup, text="Add", style="Green.TButton", command=lambda: [add_task(self.creds, title_entry.get(), module_dropdown.get(), start_time_picker.get(), end_time_picker.get(), date_chooser.get_date()), self.saved_states(), self.construct_checklist(), add_popup.destroy()])
+        add_task_button = ttk.Button(add_popup, text="Add", style="Green.TButton", command=lambda: self.on_task_submit(None, title_entry.get(), module_dropdown, start_time_picker.get(), end_time_picker.get(), date_chooser.get_date(), "Add", add_popup))
         add_task_button.grid(row=6, column=0, pady=15, columnspan=2)
 
     def edit_task_popup(self, events):
@@ -331,7 +367,7 @@ class StudentPlannerApp:
                     end_time = time
 
             start_time_var = tk.StringVar(edit_popup)
-            start_time_picker = tk.Spinbox(edit_popup, values=self.time_values(), wrap=True, repeatinterval=10, state='readonly', font=("Arial", 15), readonlybackground='white', fg="green", width=18, textvariable=start_time_var)
+            start_time_picker = tk.Spinbox(edit_popup, values=self.time_values(), wrap=True, repeatinterval=10, font=("Arial", 15), bg='white', fg="green", width=18, textvariable=start_time_var)
             start_time_picker.delete(0, tk.END)
             start_time_picker.insert(0, start_time)
             start_time_var.set(start_time)
@@ -341,13 +377,13 @@ class StudentPlannerApp:
             end_time_label.grid(row=6, column=0, pady=15)
 
             end_time_var = tk.StringVar(edit_popup)
-            end_time_picker = tk.Spinbox(edit_popup, values=self.time_values(), wrap=True, repeatinterval=10, state='readonly', font=("Arial", 15), readonlybackground='white', fg="green", width=18, textvariable=end_time_var)
+            end_time_picker = tk.Spinbox(edit_popup, values=self.time_values(), wrap=True, repeatinterval=10, font=("Arial", 15), bg='white', fg="green", width=18, textvariable=end_time_var)
             end_time_picker.delete(0, tk.END)
             end_time_picker.insert(0, end_time)
             end_time_var.set(end_time)
             end_time_picker.grid(row=6, column=1, pady=15)
 
-            edit_task_button = ttk.Button(edit_popup, text="Save", style="Green.TButton", command=lambda: [edit_task(self.creds, task_id, title_entry.get(), module_dropdown.get(), start_time_picker.get(), end_time_picker.get(), date_chooser.get_date()), self.saved_states(), self.construct_checklist(), edit_popup.destroy()])
+            edit_task_button = ttk.Button(edit_popup, text="Save", style="Green.TButton", command=lambda: self.on_task_submit(task_id, title_entry.get(), module_dropdown, start_time_picker.get(), end_time_picker.get(), date_chooser.get_date(), "Edit", edit_popup))
             edit_task_button.grid(row=7, column=0, pady=8, columnspan=2)
 
     def delete_task_popup(self, specified_date):
