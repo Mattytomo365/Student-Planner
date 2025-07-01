@@ -217,13 +217,12 @@ class StudentPlannerApp:
         
         
 
-    def on_task_submit(self, task_id, title, module_dropdown, start_time, end_time, date, submit_type, popup):
+    def on_task_submit(self, task_id, title, module_chosen, module_dropdown, start_time, end_time, date, submit_type, popup):
         valid = True
-        module = module_dropdown.get()
 
         if not self.entry_validation(title=title):
             valid = False
-        if not self.dropdown_validation([('module', module, module_dropdown['values'])]):
+        if not self.dropdown_validation([('module', module_chosen, module_dropdown['values'])]):
             valid = False
         if not self.time_validation('start', start_time) or not self.time_validation('end', end_time):
             valid = False
@@ -232,23 +231,22 @@ class StudentPlannerApp:
         
         if valid:
             if submit_type == "Add":
-                add_task(self.creds, title, module, start_time, end_time, date)
+                add_task(self.creds, title, module_chosen, start_time, end_time, date)
                 self.saved_states()
                 self.construct_checklist()
                 popup.destroy()
             elif submit_type == "Edit":
-                edit_task(self.creds, task_id, title, module, start_time, end_time, date)
+                edit_task(self.creds, task_id, title, module_chosen, start_time, end_time, date)
                 self.saved_states()
                 self.construct_checklist()
                 popup.destroy()
 
-    def on_assignment_submit(self, assignment_id, title, module_dropdown, due_date, due_time, submit_type, popup):
+    def on_assignment_submit(self, assignment_id, title, module_chosen, module_dropdown, due_date, due_time, submit_type, popup):
         valid = True
-        module = module_dropdown.get()
 
         if not self.entry_validation(title=title):
             valid = False
-        if not self.dropdown_validation([("module", module, module_dropdown['values'])]):
+        if not self.dropdown_validation([("module", module_chosen, module_dropdown['values'])]):
             valid = False
         if not self.date_validation(due_date):
             valid = False
@@ -257,12 +255,12 @@ class StudentPlannerApp:
         
         if valid:
             if submit_type == "Add":
-                add_assignment(self.creds, title, module, due_date, due_time)
+                add_assignment(self.creds, title, module_chosen, due_date, due_time)
                 self.saved_states()
                 self.construct_checklist()
                 popup.destroy()
             elif submit_type == "Edit":
-                edit_assignment(self.creds, assignment_id, title, module, due_date, due_time)
+                edit_assignment(self.creds, assignment_id, title, module_chosen, due_date, due_time)
                 self.saved_states()
                 self.construct_checklist()
                 popup.destroy()
@@ -313,7 +311,7 @@ class StudentPlannerApp:
         end_time_picker = tk.Spinbox(add_popup, values=self.time_values(), wrap=True, repeatinterval=10, font=("Arial", 15), bg='white', fg="green", width=18)
         end_time_picker.grid(row=5, column=1, pady=15, sticky='w')
 
-        add_task_button = ttk.Button(add_popup, text="Add", style="Green.TButton", command=lambda: self.on_task_submit(None, title_entry.get(), module_dropdown, start_time_picker.get(), end_time_picker.get(), date_chooser.get_date(), "Add", add_popup))
+        add_task_button = ttk.Button(add_popup, text="Add", style="Green.TButton", command=lambda: self.on_task_submit(None, title_entry.get(), module_dropdown.get(), module_dropdown, start_time_picker.get(), end_time_picker.get(), date_chooser.get_date(), "Add", add_popup))
         add_task_button.grid(row=6, column=0, pady=15, columnspan=2)
 
     def edit_task_popup(self, events):
@@ -406,7 +404,7 @@ class StudentPlannerApp:
             end_time_var.set(end_time)
             end_time_picker.grid(row=6, column=1, pady=15)
 
-            edit_task_button = ttk.Button(edit_popup, text="Save", style="Green.TButton", command=lambda: self.on_task_submit(task_id, title_entry.get(), module_dropdown, start_time_picker.get(), end_time_picker.get(), date_chooser.get_date(), "Edit", edit_popup))
+            edit_task_button = ttk.Button(edit_popup, text="Save", style="Green.TButton", command=lambda: self.on_task_submit(task_id, title_entry.get(), module_dropdown.get(), module_dropdown, start_time_picker.get(), end_time_picker.get(), date_chooser.get_date(), "Edit", edit_popup))
             edit_task_button.grid(row=7, column=0, pady=8, columnspan=2)
 
     def delete_task_popup(self, specified_date):
@@ -498,7 +496,7 @@ class StudentPlannerApp:
         time_picker = tk.Spinbox(add_assignment_popup, values=self.time_values(), wrap=True, repeatinterval=10, font=("Arial", 15), bg='white', fg="green", width=18)
         time_picker.grid(row=4, column=1, pady=15, sticky='w')
 
-        add_assignment_button = ttk.Button(add_assignment_popup, text="Add", style="Green.TButton", command=lambda: self.on_assignment_submit(None, title_entry.get(), module_dropdown, date_chooser.get_date(), time_picker.get(), "Add", add_assignment_popup))
+        add_assignment_button = ttk.Button(add_assignment_popup, text="Add", style="Green.TButton", command=lambda: self.on_assignment_submit(None, title_entry.get(), module_dropdown.get(), module_dropdown, date_chooser.get_date(), time_picker.get(), "Add", add_assignment_popup))
         add_assignment_button.grid(row=5, column=0, columnspan=2, pady=10)
 
     def edit_assignment_popup(self, assignments):
@@ -576,7 +574,7 @@ class StudentPlannerApp:
             due_time_var.set(due_time)
             due_time_picker.grid(row=5, column=1, pady=15)
 
-            edit_assignment_button = ttk.Button(edit_assignment_popup, text="Save", style="Green.TButton", command=lambda: self.on_assignment_submit(assignment_id, title_entry.get(), module_dropdown, due_date_chooser.get_date(), due_time_picker.get(), "Edit", edit_assignment_popup))
+            edit_assignment_button = ttk.Button(edit_assignment_popup, text="Save", style="Green.TButton", command=lambda: self.on_assignment_submit(assignment_id, title_entry.get(), module_dropdown.get(), module_dropdown, due_date_chooser.get_date(), due_time_picker.get(), "Edit", edit_assignment_popup))
             edit_assignment_button.grid(row=7, column=0, pady=8, columnspan=2)
 
 
