@@ -116,7 +116,7 @@ def get_event_by_date(creds, specified_date):
         events = events_result.get("items", [])
 
         if not events:
-            return [("no_event_id", "No tasks to delete")]
+            return [("no_event_id", "No tasks/assignments to delete")]
 
         results = []
         for event in events:

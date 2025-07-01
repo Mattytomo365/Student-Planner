@@ -236,14 +236,37 @@ class StudentPlannerApp:
                 self.saved_states()
                 self.construct_checklist()
                 popup.destroy()
-            else:
+            elif submit_type == "Edit":
                 edit_task(self.creds, task_id, title, module, start_time, end_time, date)
                 self.saved_states()
                 self.construct_checklist()
                 popup.destroy()
 
-    def on_assignment_submit(self):
-        pass
+    def on_assignment_submit(self, assignment_id, title, module_dropdown, due_date, due_time, submit_type, popup):
+        valid = True
+        module = module_dropdown.get()
+
+        if not self.entry_validation(title=title):
+            valid = False
+        if not self.dropdown_validation([("module", module, module_dropdown['values'])]):
+            valid = False
+        if not self.date_validation(due_date):
+            valid = False
+        if not self.time_validation("due", due_time):
+            valid = False
+        
+        if valid:
+            if submit_type == "Add":
+                add_assignment(self.creds, title, module, due_date, due_time)
+                self.saved_states()
+                self.construct_checklist()
+                popup.destroy()
+            elif submit_type == "Edit":
+                edit_assignment(self.creds, assignment_id, title, module, due_date, due_time)
+                self.saved_states()
+                self.construct_checklist()
+                popup.destroy()
+
 
     # Popup functions
 
@@ -398,7 +421,7 @@ class StudentPlannerApp:
         
         delete_popup = tk.Toplevel(self.main)
         delete_popup.title("Delete Task/Assignment")
-        delete_popup.geometry("400x200")
+        delete_popup.geometry("400x170")
         delete_popup.configure(bg="white")
         delete_popup.resizable(False, False)
         header = tk.Label(delete_popup, text= "Delete Task/Assignment", font=('Arial', 30), bg="white", fg="Green")
@@ -407,7 +430,7 @@ class StudentPlannerApp:
         events = get_event_by_date(self.creds, specified_date)
         event_to_delete = True
         for event in events:
-            if event[1] == 'No tasks to delete':
+            if event[1] == 'No tasks/assignments to delete':
                 event_to_delete = False
         print([x[1] for x in events])
 
@@ -425,7 +448,7 @@ class StudentPlannerApp:
     def delete_date_popup(self):
         delete_date_popup = tk.Toplevel(self.main)
         delete_date_popup.title("Delete Task/Assignment")
-        delete_date_popup.geometry("400x200")
+        delete_date_popup.geometry("400x170")
         delete_date_popup.configure(bg="white")
         delete_date_popup.resizable(False, False)
         header = tk.Label(delete_date_popup, text= "Delete Task/Assignment", font=('Arial', 30), bg="white", fg="Green")
@@ -436,7 +459,7 @@ class StudentPlannerApp:
         date_chooser = DateEntry(delete_date_popup, width=19, background='green', foreground='white', borderwidth=2, date_pattern='dd-mm-yyyy')
         date_chooser.grid(row=1, column=1, pady=15, sticky='w')
 
-        submit_date_button = ttk.Button(delete_date_popup, text="Submit", style="Green.TButton", command=lambda: [self.delete_task_popup(date_chooser.get_date()), delete_date_popup.withdraw()])
+        submit_date_button = ttk.Button(delete_date_popup, text="Continue", style="Green.TButton", command=lambda: [self.delete_task_popup(date_chooser.get_date()), delete_date_popup.withdraw()])
         submit_date_button.grid(row=2, column=0, columnspan=2, pady=10)
 
     def add_assignment_popup(self):
@@ -472,10 +495,10 @@ class StudentPlannerApp:
         time_label = tk.Label(add_assignment_popup, text="Time Due", font=('Arial', 15), bg="white", fg="black")
         time_label.grid(row=4, column=0, pady=15)
 
-        time_picker = tk.Spinbox(add_assignment_popup, values=self.time_values(), wrap=True, repeatinterval=10, state='readonly', font=("Arial", 15), readonlybackground='white', fg="green", width=18)
+        time_picker = tk.Spinbox(add_assignment_popup, values=self.time_values(), wrap=True, repeatinterval=10, font=("Arial", 15), bg='white', fg="green", width=18)
         time_picker.grid(row=4, column=1, pady=15, sticky='w')
 
-        add_assignment_button = ttk.Button(add_assignment_popup, text="Add", style="Green.TButton", command=lambda: [add_assignment(self.creds, title_entry.get(), module_dropdown.get(), date_chooser.get_date(), time_picker.get()), add_assignment_popup.destroy()])
+        add_assignment_button = ttk.Button(add_assignment_popup, text="Add", style="Green.TButton", command=lambda: self.on_assignment_submit(None, title_entry.get(), module_dropdown, date_chooser.get_date(), time_picker.get(), "Add", add_assignment_popup))
         add_assignment_button.grid(row=5, column=0, columnspan=2, pady=10)
 
     def edit_assignment_popup(self, assignments):
@@ -547,13 +570,13 @@ class StudentPlannerApp:
                     due_time = time
 
             due_time_var = tk.StringVar(edit_assignment_popup)
-            due_time_picker = tk.Spinbox(edit_assignment_popup, values=self.time_values(), wrap=True, repeatinterval=10, state='readonly', font=("Arial", 15), readonlybackground='white', fg="green", width=18, textvariable=due_time_var)
+            due_time_picker = tk.Spinbox(edit_assignment_popup, values=self.time_values(), wrap=True, repeatinterval=10, font=("Arial", 15), bg='white', fg="green", width=18, textvariable=due_time_var)
             due_time_picker.delete(0, tk.END)
             due_time_picker.insert(0, due_time)
             due_time_var.set(due_time)
             due_time_picker.grid(row=5, column=1, pady=15)
 
-            edit_assignment_button = ttk.Button(edit_assignment_popup, text="Save", style="Green.TButton", command=lambda: [edit_assignment(self.creds, assignment_id, title_entry.get(), module_dropdown.get(), due_date_chooser.get_date(), due_time_picker.get()), edit_assignment_popup.destroy()])
+            edit_assignment_button = ttk.Button(edit_assignment_popup, text="Save", style="Green.TButton", command=lambda: self.on_assignment_submit(assignment_id, title_entry.get(), module_dropdown, due_date_chooser.get_date(), due_time_picker.get(), "Edit", edit_assignment_popup))
             edit_assignment_button.grid(row=7, column=0, pady=8, columnspan=2)
 
 
