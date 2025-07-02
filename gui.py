@@ -43,7 +43,7 @@ class StudentPlannerApp:
         today = now.strftime('%Y-%m-%d')
 
         header = tk.Label(main, text=day_of_week, font=("Arial", 40), bg="white", fg="green")
-        header.grid(row=0, column=0, columnspan=2, sticky="nsw", padx=210, pady=5)
+        header.grid(row=0, column=0, columnspan=2, sticky="ew", padx=210, pady=5)
 
         self.construct_checklist()
         self.construct_buttons()
@@ -595,14 +595,14 @@ class StudentPlannerApp:
     def view_key(self):
         key_popup = tk.Toplevel(self.main)
         key_popup.title("View Key")
-        key_popup.geometry("400x400")
+        key_popup.geometry("400x450")
         key_popup.configure(bg="white")
         key_popup.resizable(False, False)
         header = tk.Label(key_popup, text= "Key", font=('Arial', 30), bg="white", fg="Green")
-        header.place(x=200, y=30, anchor=tk.CENTER)
+        header.grid(row=0, column=0, padx=170, pady=10)
 
-        modules_frame = tk.Frame(key_popup, width=30, height=20, bg = "white", highlightbackground="green", highlightthickness=1)
-        modules_frame.place(x=200, y=220, anchor=tk.CENTER)
+        modules_frame = tk.Frame(key_popup, width=30, height=20, bg="white", highlightbackground="green", highlightthickness=1)
+        modules_frame.grid(row=1, column=0, pady=15)
 
         i = 0
 
@@ -617,14 +617,15 @@ class StudentPlannerApp:
             no_modules_label = tk.Label(modules_frame, text="No modules added", font=('Arial', 15), bg="white", fg="black")
             no_modules_label.grid(row=i, column=0, padx=30, pady=20)
 
-        canvas = tk.Canvas(modules_frame, width=70, height=200, bg="white", highlightbackground="white", highlightthickness=1)
-        canvas.grid(row=0, column=1, padx=20, pady=20, rowspan=3)
+        canvas = tk.Canvas(modules_frame, width=70, height=300, bg="white", highlightbackground="white", highlightthickness=1)
+        canvas.grid(row=0, column=1, padx=20, pady=20, rowspan=4)
         
 
         # Draw ovals at different Y positions within the canvas
-        canvas.create_oval(10, 10, 30, 30, fill="green", outline="dark green")   # top
-        canvas.create_oval(10, 90, 30, 110, fill="blue", outline="blue")     # middle
-        canvas.create_oval(10, 170, 30, 190, fill="orange", outline="orange")# bottom
+        canvas.create_oval(10, 15, 30, 35, fill="green", outline="dark green") 
+        canvas.create_oval(10, 100, 30, 120, fill="blue", outline="blue")     
+        canvas.create_oval(10, 185, 30, 205, fill="orange", outline="orange")
+        canvas.create_oval(10, 270, 30, 290, fill="grey", outline="grey")
 
 
 
