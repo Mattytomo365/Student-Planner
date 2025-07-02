@@ -110,8 +110,8 @@ class StudentPlannerApp:
                 colour = "blue"
             elif colour_id == "6":
                 colour = "orange"
-            elif colour_id == None:
-                colour = "black"
+            elif colour_id == "8":
+                colour = "grey"
             var = tk.BooleanVar(value=states.get(id, False))  # Use the saved state if it exists, otherwise default to False
             self.task_vars.append(var)
             checkbox = tk.Checkbutton(checklist_frame, text=summary, variable=var, bg="white", fg=colour, width=30, justify="left", anchor="w", selectcolor="green", padx=3, command=toggle, font=("Arial 15 bold"))
@@ -304,7 +304,7 @@ class StudentPlannerApp:
 
         with open('modules.json', 'r') as file:
             modules = json.load(file)
-            module_dropdown['values'] = (modules['10'], modules['9'], modules['6'])
+            module_dropdown['values'] = (modules['10'], modules['9'], modules['6'], modules['8'])
 
         module_dropdown.grid(row=2, column=1, pady=15, sticky='w')
 
@@ -377,7 +377,7 @@ class StudentPlannerApp:
 
             with open('modules.json', 'r') as file:
                 modules = json.load(file)
-                module_dropdown['values'] = (modules['10'], modules['9'], modules['6'])
+                module_dropdown['values'] = (modules['10'], modules['9'], modules['6'], modules['8'])
 
             module_dropdown.grid(row=3, column=1, pady=15)
 
@@ -495,7 +495,7 @@ class StudentPlannerApp:
 
         with open('modules.json', 'r') as file:
             modules = json.load(file)
-            module_dropdown['values'] = (modules['10'], modules['9'], modules['6'])
+            module_dropdown['values'] = (modules['10'], modules['9'], modules['6'], modules['8'])
 
         module_dropdown.grid(row=2, column=1, pady=15, sticky='w')
 
@@ -560,7 +560,7 @@ class StudentPlannerApp:
 
             with open('modules.json', 'r') as file:
                 modules = json.load(file)
-                module_dropdown['values'] = (modules['10'], modules['9'], modules['6'])
+                module_dropdown['values'] = (modules['10'], modules['9'], modules['6'], modules['8'])
 
             module_dropdown.grid(row=3, column=1, pady=15)
 

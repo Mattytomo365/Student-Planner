@@ -181,6 +181,8 @@ def add_task(creds, title, module, start_time, end_time, date):
                 colour = 9
             elif modules['6'] == module:
                 colour = 6
+            elif modules['8'] == module:
+                colour = 8
 
         event = {
             "summary": f"{title}",
@@ -213,6 +215,8 @@ def edit_task(creds, task_id, title, module, start_time, end_time, date):
                 colour = 9
             elif modules['6'] == module:
                 colour = 6
+            elif modules['8'] == module:
+                colour = 8
 
         event = {
             "summary": f"{title}",
@@ -251,6 +255,8 @@ def add_assignment(creds, title, module, due_date, due_time):
                 colour = 9
             elif modules['6'] == module:
                 colour = 6
+            elif modules['8'] == module:
+                colour = 8
 
         event = {
             "summary": f"{title}",
@@ -282,6 +288,8 @@ def edit_assignment(creds, assignment_id, title, module, due_date, due_time):
                 colour = 9
             elif modules['6'] == module:
                 colour = 6
+            elif modules['8'] == module:
+                colour = 8
 
         event = {
             "summary": f"{title}",
@@ -310,7 +318,8 @@ def add_modules(module_1, module_2, module_3):
     dictionary = {
         "10" : f"{module_1}",
         "9" : f"{module_2}",
-        "5" : f"{module_3}"
+        "6" : f"{module_3}",
+        "8" : "General"
     }
 
     # Serializing json
