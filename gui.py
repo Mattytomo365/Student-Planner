@@ -214,6 +214,18 @@ class StudentPlannerApp:
                 return True
         messagebox.showinfo(title='Error', message=f'{type} time is invalid')
         return False
+
+    def start_end_time_validation(self, start_time, end_time):
+        stripped_start = start_time.strip(":APM ")
+        stripped_start = stripped_start.replace(":", "")
+        stripped_end = end_time.strip(":APM ")
+        stripped_end = stripped_end.replace(":", "")
+
+        if int(stripped_start) > int(stripped_end):
+            messagebox.showinfo(title='Error', message='Start time must be ealier than end time')
+            return False
+        else:
+            return True
         
         
 
@@ -225,6 +237,8 @@ class StudentPlannerApp:
         if not self.dropdown_validation([('module', module_chosen, module_dropdown['values'])]):
             valid = False
         if not self.time_validation('start', start_time) or not self.time_validation('end', end_time):
+            valid = False
+        if not self.start_end_time_validation(start_time, end_time):
             valid = False
         if not self.date_validation(date):
             valid = False
