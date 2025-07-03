@@ -11,7 +11,7 @@ class StudentPlannerApp:
 
     def __init__(self, main):
         self.main = main
-        self.main.geometry("800x650")
+        self.main.geometry("950x700")
         self.main.title("My GUI")
         self.main.configure(bg="white")
         self.main.resizable(False, False)
@@ -112,12 +112,14 @@ class StudentPlannerApp:
                 colour = "orange"
             elif colour_id == "8":
                 colour = "grey"
+            else:
+                colour = "black"
             var = tk.BooleanVar(value=states.get(id, False))  # Use the saved state if it exists, otherwise default to False
             self.task_vars.append(var)
             checkbox = tk.Checkbutton(checklist_frame, text=summary, variable=var, bg="white", fg=colour, width=30, justify="left", anchor="w", selectcolor="green", padx=3, command=toggle, font=("Arial 15 bold"))
             checkbox.grid(row=len(self.task_vars), column=0, sticky="nsw", padx=30, pady=5)
 
-        self.progress = ttk.Progressbar(self.main, orient="horizontal", length=345, mode="determinate", style="Green.Horizontal.TProgressbar")
+        self.progress = ttk.Progressbar(self.main, orient="horizontal", length=458, mode="determinate", style="Green.Horizontal.TProgressbar")
         self.progress.grid(row=3, column=0, padx=45, pady=0, sticky='nw')
 
         toggle()
@@ -285,20 +287,20 @@ class StudentPlannerApp:
     def add_task_popup(self):
         add_popup = tk.Toplevel(self.main)
         add_popup.title("Add Task")
-        add_popup.geometry("400x420")
+        add_popup.geometry("360x430")
         add_popup.configure(bg="white")
         add_popup.resizable(False, False)
 
         header = tk.Label(add_popup, text= "Add Task", font=('Arial', 30), bg="white", fg="Green")
-        header.grid(row=0, column=0, padx=140, pady=10, columnspan=2)
+        header.grid(row=0, column=0, pady=10, columnspan=2)
 
         title_label = tk.Label(add_popup, text="Title", font=('Arial', 15), bg="white", fg="black")
-        title_label.grid(row=1, column=0, pady=15)
+        title_label.grid(row=1, column=0, pady=15, padx=10)
         title_entry = tk.Entry(add_popup, font=('Arial', 15), bg="white", fg="black")
         title_entry.grid(row=1, column=1, pady=15, sticky='w')
 
         module_dropdown_label = tk.Label(add_popup, text="Module", font=('Arial', 15), bg="white", fg="black")
-        module_dropdown_label.grid(row=2, column=0, pady=15)
+        module_dropdown_label.grid(row=2, column=0, pady=15, padx=10)
         module_var = tk.StringVar(add_popup)
         module_dropdown = ttk.Combobox(add_popup, width=19, textvariable=module_var)
 
@@ -309,18 +311,18 @@ class StudentPlannerApp:
         module_dropdown.grid(row=2, column=1, pady=15, sticky='w')
 
         date_label = tk.Label(add_popup, text="Date", font=('Arial', 15), bg="white", fg="black")
-        date_label.grid(row=3, column=0, pady=15)
+        date_label.grid(row=3, column=0, pady=15, padx=10)
         date_chooser = DateEntry(add_popup, width=19, background='green', foreground='white', borderwidth=2, date_pattern='dd-mm-yyyy')
         date_chooser.grid(row=3, column=1, pady=15, sticky='w')
 
         start_time_label = tk.Label(add_popup, text="Start Time", font=('Arial', 15), bg="white", fg="black")
-        start_time_label.grid(row=4, column=0, pady=15)
+        start_time_label.grid(row=4, column=0, pady=15, padx=10)
 
         start_time_picker = tk.Spinbox(add_popup, values=self.time_values(), wrap=True, repeatinterval=10, font=("Arial", 15), bg='white', fg="green", width=18)
         start_time_picker.grid(row=4, column=1, pady=15, sticky='w')
 
         end_time_label = tk.Label(add_popup, text="End Time", font=('Arial', 15), bg="white", fg="black")
-        end_time_label.grid(row=5, column=0, pady=15)
+        end_time_label.grid(row=5, column=0, pady=15, padx=10)
 
         end_time_picker = tk.Spinbox(add_popup, values=self.time_values(), wrap=True, repeatinterval=10, font=("Arial", 15), bg='white', fg="green", width=18)
         end_time_picker.grid(row=5, column=1, pady=15, sticky='w')
@@ -338,11 +340,11 @@ class StudentPlannerApp:
 
         edit_popup = tk.Toplevel(self.main)
         edit_popup.title("Edit Task")
-        edit_popup.geometry("400x460")
+        edit_popup.geometry("360x480")
         edit_popup.configure(bg="white")
         edit_popup.resizable(False, False)
         header = tk.Label(edit_popup, text= "Edit Task", font=('Arial', 30), bg="white", fg="Green")
-        header.grid(row=0, column=0, columnspan=2, padx=140, pady=10)
+        header.grid(row=0, column=0, columnspan=2, pady=10, padx=100)
 
         if events == []:
             no_events_label = tk.Label(edit_popup, text="No tasks to edit", font=('Arial', 15), bg="white", fg="black")
@@ -353,7 +355,7 @@ class StudentPlannerApp:
             task_var = tk.StringVar(edit_popup)
             task_chosen = ttk.Combobox(edit_popup, width=19, textvariable=task_var)
             task_chosen['values'] = [x[1] for x in self.events]
-            task_chosen.grid(row=1, column=1, pady=15)
+            task_chosen.grid(row=1, column=1, pady=15, sticky='w')
             task_chosen.bind("<<ComboboxSelected>>", task_to_edit)
 
         def edit_popup_specific(details, task_id):
@@ -362,7 +364,7 @@ class StudentPlannerApp:
             title_label.grid(row=2, column=0, pady=15)
             title_entry = tk.Entry(edit_popup, font=('Arial', 15), bg="white", fg="black")
             title_entry.insert(0, str(details["summary"]))
-            title_entry.grid(row=2, column=1, pady=15)
+            title_entry.grid(row=2, column=1, pady=15, sticky='w')
 
             with open ("modules.json", "r") as f:
                 modules = json.load(f)
@@ -379,7 +381,7 @@ class StudentPlannerApp:
                 modules = json.load(file)
                 module_dropdown['values'] = (modules['10'], modules['9'], modules['6'], modules['8'])
 
-            module_dropdown.grid(row=3, column=1, pady=15)
+            module_dropdown.grid(row=3, column=1, pady=15, sticky='w')
 
             date_label = tk.Label(edit_popup, text="Date", font=('Arial', 15), bg="white", fg="black")
             date_label.grid(row=4, column=0, pady=15)
@@ -388,7 +390,7 @@ class StudentPlannerApp:
             start_date_time = details["start"]
             end_date_time = details["end"]
             date_chooser.set_date(start_date_time[:-15])
-            date_chooser.grid(row=4, column=1, pady=15)
+            date_chooser.grid(row=4, column=1, pady=15, sticky='w')
 
             start_time_label = tk.Label(edit_popup, text="Start Time", font=('Arial', 15), bg="white", fg="black")
             start_time_label.grid(row=5, column=0, pady=15)
@@ -406,7 +408,7 @@ class StudentPlannerApp:
             start_time_picker.delete(0, tk.END)
             start_time_picker.insert(0, start_time)
             start_time_var.set(start_time)
-            start_time_picker.grid(row=5, column=1, pady=15)
+            start_time_picker.grid(row=5, column=1, pady=15, sticky='w')
 
             end_time_label = tk.Label(edit_popup, text="End Time", font=('Arial', 15), bg="white", fg="black")
             end_time_label.grid(row=6, column=0, pady=15)
@@ -416,7 +418,7 @@ class StudentPlannerApp:
             end_time_picker.delete(0, tk.END)
             end_time_picker.insert(0, end_time)
             end_time_var.set(end_time)
-            end_time_picker.grid(row=6, column=1, pady=15)
+            end_time_picker.grid(row=6, column=1, pady=15, sticky='w')
 
             edit_task_button = ttk.Button(edit_popup, text="Save", style="Green.TButton", command=lambda: self.on_task_submit(task_id, title_entry.get(), module_dropdown.get(), module_dropdown, start_time_picker.get(), end_time_picker.get(), date_chooser.get_date(), "Edit", edit_popup))
             edit_task_button.grid(row=7, column=0, pady=8, columnspan=2)
@@ -433,11 +435,11 @@ class StudentPlannerApp:
         
         delete_popup = tk.Toplevel(self.main)
         delete_popup.title("Delete Task/Assignment")
-        delete_popup.geometry("400x170")
+        delete_popup.geometry("400x180")
         delete_popup.configure(bg="white")
         delete_popup.resizable(False, False)
-        header = tk.Label(delete_popup, text= "Delete Task/Assignment", font=('Arial', 30), bg="white", fg="Green")
-        header.grid(row=0, column=0, columnspan=2, padx=50, pady=10)
+        header = tk.Label(delete_popup, text= "Delete Task/Assignment", font=('Arial', 26), bg="white", fg="Green")
+        header.grid(row=0, column=0, columnspan=2, padx=15, pady=10)
 
         events = get_event_by_date(self.creds, specified_date)
         event_to_delete = True
@@ -460,11 +462,11 @@ class StudentPlannerApp:
     def delete_date_popup(self):
         delete_date_popup = tk.Toplevel(self.main)
         delete_date_popup.title("Delete Task/Assignment")
-        delete_date_popup.geometry("400x170")
+        delete_date_popup.geometry("400x180")
         delete_date_popup.configure(bg="white")
         delete_date_popup.resizable(False, False)
-        header = tk.Label(delete_date_popup, text= "Delete Task/Assignment", font=('Arial', 30), bg="white", fg="Green")
-        header.grid(row=0, column=0, columnspan=2, padx=50, pady=10)
+        header = tk.Label(delete_date_popup, text= "Delete Task/Assignment", font=('Arial', 26), bg="white", fg="Green")
+        header.grid(row=0, column=0, columnspan=2, padx=15, pady=10)
 
         date_label = tk.Label(delete_date_popup, text="Select Date", font=('Arial', 15), bg="white", fg="black")
         date_label.grid(row=1, column=0, pady=15)
@@ -477,11 +479,11 @@ class StudentPlannerApp:
     def add_assignment_popup(self):
         add_assignment_popup = tk.Toplevel(self.main)
         add_assignment_popup.title("Add Assignment")
-        add_assignment_popup.geometry("400x340")
+        add_assignment_popup.geometry("400x360")
         add_assignment_popup.configure(bg="white")
         add_assignment_popup.resizable(False, False)
         header = tk.Label(add_assignment_popup, text= "Add Assignment", font=('Arial', 30), bg="white", fg="Green")
-        header.grid(row=0, column=0, padx=105, pady=10, columnspan=2)
+        header.grid(row=0, column=0, padx=65, pady=10, columnspan=2)
 
         title_label = tk.Label(add_assignment_popup, text="Title", font=('Arial', 15), bg="white", fg="black")
         title_label.grid(row=1, column=0, pady=15)
@@ -522,22 +524,22 @@ class StudentPlannerApp:
 
         edit_assignment_popup = tk.Toplevel(self.main)
         edit_assignment_popup.title("Edit Assignment")
-        edit_assignment_popup.geometry("400x410")
+        edit_assignment_popup.geometry("400x420")
         edit_assignment_popup.configure(bg="white")
         edit_assignment_popup.resizable(False, False)
         header = tk.Label(edit_assignment_popup, text= "Edit Assignment", font=('Arial', 30), bg="white", fg="Green")
-        header.grid(row=0, column=0, columnspan=2, padx=100, pady=10)
+        header.grid(row=0, column=0, columnspan=2, padx=70, pady=10)
 
         if assignments == []:
             no_events_label = tk.Label(edit_assignment_popup, text="No assignments to edit", font=('Arial', 15), bg="white", fg="black")
-            no_events_label.grid(row=1, column=0)
+            no_events_label.grid(row=1, column=0, columnspan=2)
         else:
             dropdown_label = tk.Label(edit_assignment_popup, text="Assignment", font=('Arial', 15), bg="white", fg="black")
             dropdown_label.grid(row=1, column=0, pady=15)
             assignment_var = tk.StringVar(edit_assignment_popup)
             assignment_chosen = ttk.Combobox(edit_assignment_popup, width=19, textvariable=assignment_var)
             assignment_chosen['values'] = [x[1] for x in self.assignments]
-            assignment_chosen.grid(row=1, column=1, pady=15)
+            assignment_chosen.grid(row=1, column=1, pady=15, sticky='w')
             assignment_chosen.bind("<<ComboboxSelected>>", assignment_to_edit)
 
         def edit_popup_specific(details, assignment_id):
@@ -545,7 +547,7 @@ class StudentPlannerApp:
             title_label.grid(row=2, column=0, pady=15)
             title_entry = tk.Entry(edit_assignment_popup, font=('Arial', 15), bg="white", fg="black")
             title_entry.insert(0, str(details["summary"]))
-            title_entry.grid(row=2, column=1, pady=15)
+            title_entry.grid(row=2, column=1, pady=15, sticky='w')
 
             with open ("modules.json", "r") as f:
                 modules = json.load(f)
@@ -562,7 +564,7 @@ class StudentPlannerApp:
                 modules = json.load(file)
                 module_dropdown['values'] = (modules['10'], modules['9'], modules['6'], modules['8'])
 
-            module_dropdown.grid(row=3, column=1, pady=15)
+            module_dropdown.grid(row=3, column=1, pady=15, sticky='w')
 
             due_date_label = tk.Label(edit_assignment_popup, text="Date Due", font=('Arial', 15), bg="white", fg="black")
             due_date_label.grid(row=4, column=0, pady=15)
@@ -570,7 +572,7 @@ class StudentPlannerApp:
             due_date_chooser.delete(0, "end")
             due_date_time = details["start"]
             due_date_chooser.set_date(due_date_time[:-15])
-            due_date_chooser.grid(row=4, column=1, pady=15)
+            due_date_chooser.grid(row=4, column=1, pady=15, sticky='w')
 
             due_time_label = tk.Label(edit_assignment_popup, text="Time Due", font=('Arial', 15), bg="white", fg="black")
             due_time_label.grid(row=5, column=0, pady=15)
@@ -586,7 +588,7 @@ class StudentPlannerApp:
             due_time_picker.delete(0, tk.END)
             due_time_picker.insert(0, due_time)
             due_time_var.set(due_time)
-            due_time_picker.grid(row=5, column=1, pady=15)
+            due_time_picker.grid(row=5, column=1, pady=15, sticky='w')
 
             edit_assignment_button = ttk.Button(edit_assignment_popup, text="Save", style="Green.TButton", command=lambda: self.on_assignment_submit(assignment_id, title_entry.get(), module_dropdown.get(), module_dropdown, due_date_chooser.get_date(), due_time_picker.get(), "Edit", edit_assignment_popup))
             edit_assignment_button.grid(row=7, column=0, pady=8, columnspan=2)
@@ -633,27 +635,27 @@ class StudentPlannerApp:
 
         modules_popup = tk.Toplevel(self.main)
         modules_popup.title("Add Modules")
-        modules_popup.geometry("400x350")
+        modules_popup.geometry("400x325")
         modules_popup.configure(bg="white")
         modules_popup.resizable(False, False)
 
         header = tk.Label(modules_popup, text= "Add Modules", font=('Arial', 30), bg="white", fg="Green")
-        header.grid(row=0, column=0, padx=120, pady=10)
+        header.grid(row=0, column=0, padx=90, pady=10, columnspan=2)
 
         module_1_label = tk.Label(modules_popup, text="Module 1", font=('Arial', 15), bg="white", fg="black")
-        module_1_label.place(x=100, y=110, anchor=tk.CENTER)
+        module_1_label.grid(row=1, column=0, pady=15)
         module_1_entry = tk.Entry(modules_popup, font=('Arial', 15), bg="white", fg="black")
-        module_1_entry.place(x=250, y=110, anchor=tk.CENTER)
+        module_1_entry.grid(row=1, column=1, pady=15, sticky='w')
 
         module_2_label = tk.Label(modules_popup, text="Module 2", font=('Arial', 15), bg="white", fg="black")
-        module_2_label.place(x=100, y=170, anchor=tk.CENTER)
+        module_2_label.grid(row=2, column=0, pady=15)
         module_2_entry = tk.Entry(modules_popup, font=('Arial', 15), bg="white", fg="black")
-        module_2_entry.place(x=250, y=170, anchor=tk.CENTER)
+        module_2_entry.grid(row=2, column=1, pady=15, sticky='w')
 
         module_3_label = tk.Label(modules_popup, text="Module 3", font=('Arial', 15), bg="white", fg="black")
-        module_3_label.place(x=100, y=230, anchor=tk.CENTER)
+        module_3_label.grid(row=3, column=0, pady=15)
         module_3_entry = tk.Entry(modules_popup, font=('Arial', 15), bg="white", fg="black")
-        module_3_entry.place(x=250, y=230, anchor=tk.CENTER)
+        module_3_entry.grid(row=3, column=1, pady=15, sticky='w')
 
         def save_modules():
             add_modules(module_1_entry.get(), module_2_entry.get(), module_3_entry.get())
@@ -664,7 +666,7 @@ class StudentPlannerApp:
             button_to_enable_3.config(state="normal")
 
         add_modules_button = ttk.Button(modules_popup, text="Save", style="Green.TButton", command=save_modules)
-        add_modules_button.place(x=200, y=300, anchor=tk.CENTER)
+        add_modules_button.grid(row=4, column=0, pady=15, columnspan=2)
 
     def clear_modules(self, button_to_enable, button_to_disable_1, button_to_disable_2, button_to_disable_3):
         if file_exists("modules.json"):
