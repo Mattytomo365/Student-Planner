@@ -615,19 +615,21 @@ class StudentPlannerApp:
                     module_label = tk.Label(modules_frame, text=module, font=('Arial', 15), bg="white", fg="black")
                     module_label.grid(row=i, column=0, padx=30, pady=20)
                     i += 1
+                
+                canvas = tk.Canvas(modules_frame, width=70, height=300, bg="white", highlightbackground="white", highlightthickness=1)
+                canvas.grid(row=0, column=1, padx=20, pady=20, rowspan=4)
+        
+                # Draw ovals at different Y positions within the canvas
+                canvas.create_oval(10, 15, 30, 35, fill="green", outline="dark green") 
+                canvas.create_oval(10, 100, 30, 120, fill="blue", outline="blue")     
+                canvas.create_oval(10, 185, 30, 205, fill="orange", outline="orange")
+                canvas.create_oval(10, 270, 30, 290, fill="grey", outline="grey")
+
         else:
             no_modules_label = tk.Label(modules_frame, text="No modules added", font=('Arial', 15), bg="white", fg="black")
-            no_modules_label.grid(row=i, column=0, padx=30, pady=20)
+            no_modules_label.grid(row=0, column=0, padx=30, pady=20)
 
-        canvas = tk.Canvas(modules_frame, width=70, height=300, bg="white", highlightbackground="white", highlightthickness=1)
-        canvas.grid(row=0, column=1, padx=20, pady=20, rowspan=4)
-        
 
-        # Draw ovals at different Y positions within the canvas
-        canvas.create_oval(10, 15, 30, 35, fill="green", outline="dark green") 
-        canvas.create_oval(10, 100, 30, 120, fill="blue", outline="blue")     
-        canvas.create_oval(10, 185, 30, 205, fill="orange", outline="orange")
-        canvas.create_oval(10, 270, 30, 290, fill="grey", outline="grey")
 
 
 
