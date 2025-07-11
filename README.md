@@ -8,12 +8,15 @@
 
 The core functionality of this application centres around a day-to-day checklist, allowing the users to add, edit, categorise, and complete tasks with ease. Certain days can also be visually tagged (e.g. rest day, submission day, deadline day), and tasks will also be tagged (e.g. general, academic). Support for recurring tasks will be introduced (e.g. lectures, study sessions)
 
-You can track this project's progress [Here](https://www.notion.so/1e618110f1f280d79bbdceff2d6b615f?v=1e618110f1f281dca200000c9ddb7b7b&pvs=4)#
+You can track this project's progress [Here](https://www.notion.so/1e618110f1f280d79bbdceff2d6b615f?v=1e618110f1f281dca200000c9ddb7b7b&pvs=4)
 
 ---
 
 ## What I've Learned
 
+The initial challenge I faced involved setting the project up in the Google Cloud Console. This introduced me to the standard of OAuth, which came with its own learning curve - understanding its concept, defining scopes of the application, and creating an OAuth client ID, allowing the application to authenticate itself against Google's OAuth servers. 
+
+Utilisation of the credentials to create access tokens, taught me how to enable secure access to protected resources on a user's behalf, exposing me to the Google Client Library, which simplified access and interaction with Google's services. This library enabled the core functionality of the application, allowing me to call the Calendar API endpoints in my Python code to access, create, modify, and delete events. 
 
 ---
 
