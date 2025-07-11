@@ -12,7 +12,7 @@ class StudentPlannerApp:
     def __init__(self, main):
         self.main = main
         self.main.geometry("950x700")
-        self.main.title("My GUI")
+        self.main.title("Student Planner")
         self.main.configure(bg="white")
         self.main.resizable(False, False)
 
