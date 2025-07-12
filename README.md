@@ -111,7 +111,8 @@ Download the latest executable file (`.exe`) displayed in the **Releases** tab.
     - Enable the Google Calendar API
     - Construct OAuth consent screen
     - Create & download client ID credentials
-    - Rename to `credentials.json` & place it in the project root directory
+    - Rename the downloaded file to `credentials.json` & place it in the project root directory  
+
     For a full walkthrough, follow the [Python Quickstart Guide](https://developers.google.com/workspace/calendar/api/quickstart/python)
 
 4. Run the application:
