@@ -50,9 +50,9 @@ Utilisation of the credentials to create access tokens, taught me how to enable 
 - `gui.py`: Main GUI application.
 - `logic.py`: Core logic for interacting with Google Calendar and managing data.
 - `main.py`: Handles authentication with Google APIs.
-- `modules.json`: Stores user-defined module names (not included in repo).
-- `checkbox_states.json`: Saves the state of checklist items (not included in repo).
-- `reminder.json`: Tracks reminder state for deadlines (not included in repo).
+- `modules.json`: Stores user-defined module names.
+- `checkbox_states.json`: Saves the state of checklist items.
+- `reminder.json`: Tracks reminder state for deadlines.
 - `credentials.json`: Google API credentials (not included in repo).
 - `token.json`: Generated after authentication (not included in repo).
 - `requirements.txt`: Python dependencies.
@@ -102,8 +102,17 @@ Download the latest executable file (`.exe`) displayed in the **Releases** tab.
     ```
     python -m venv venv
     .\venv\Scripts\activate (Windows)
+    source venv/bin/activate (MacOS)
     pip install -r requirements.txt
     ```
+
+4. Google API Setup:
+    - Create a new [Google Cloud Console Project](https://console.cloud.google.com/)
+    - Enable the Google Calendar API
+    - Construct OAuth consent screen
+    - Create & download client ID credentials
+    - Rename to `credentials.json` & place it in the project root directory
+    For a full walkthrough, follow the [Python Quickstart Guide](https://developers.google.com/workspace/calendar/api/quickstart/python)
 
 4. Run the application:
 
