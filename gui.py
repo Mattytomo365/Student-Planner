@@ -58,10 +58,11 @@ class StudentPlannerApp:
             if assignment[1] != 'No assignments' and reminded == 'False':
                 messagebox.showinfo(title='Reminder', message=f'You have an upcoming deadline for {assignment[1]} today')
                 reminded = 'True'
-            if reminded == 'True' and reminder_date[-2:] == (int(today[-2:]) + 1):
-                reminded = 'False'
+                reminder_date = today
+        if reminded == 'True' and (int(reminder_date[-2:])) < (int(today[-2:])):
+            reminded = 'False'
 
-        save_reminder_state(reminded, today)
+        save_reminder_state(reminded, reminder_date)
 
 
     def construct_checklist(self):
