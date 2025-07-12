@@ -107,7 +107,7 @@ Download the latest executable file (`.exe`) displayed in the **Releases** tab.
     ```
 
 4. Google API Setup:
-    - Create a new [Google Cloud Console Project](https://console.cloud.google.com/)
+    - Create a new [Google Cloud Console](https://console.cloud.google.com/) project
     - Enable the Google Calendar API
     - Construct OAuth consent screen
     - Create & download client ID credentials
