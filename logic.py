@@ -218,7 +218,7 @@ def add_task(creds, title, module, start_time, end_time, date):
 
     try:
         service = build("calendar", "v3", credentials=creds)  # Initialize the Calendar API
-        with open ("modules.json", "r") as f:
+        with open (working_modules_path, "r") as f:
             modules = json.load(f)
             if modules['10'] == module:
                 colour = 10
@@ -252,7 +252,7 @@ def edit_task(creds, task_id, title, module, start_time, end_time, date):
     try:
         service = build("calendar", "v3", credentials=creds)
 
-        with open ("modules.json", "r") as f:
+        with open (working_modules_path, "r") as f:
             modules = json.load(f)
             if modules['10'] == module:
                 colour = 10
@@ -292,7 +292,7 @@ def delete_task(creds, task_id):
 def add_assignment(creds, title, module, due_date, due_time):
     try:
         service = build("calendar", "v3", credentials=creds)
-        with open ("modules.json", "r") as f:
+        with open (working_modules_path, "r") as f:
             modules = json.load(f)
             if modules['10'] == module:
                 colour = 10
@@ -325,7 +325,7 @@ def add_assignment(creds, title, module, due_date, due_time):
 def edit_assignment(creds, assignment_id, title, module, due_date, due_time):
     try:
         service = build("calendar", "v3", credentials=creds)
-        with open ("modules.json", "r") as f:
+        with open (working_modules_path, "r") as f:
             modules = json.load(f)
             if modules['10'] == module:
                 colour = 10
@@ -370,7 +370,7 @@ def add_modules(module_1, module_2, module_3):
     # Serializing json
     json_object = json.dumps(dictionary, indent=4)
  
-    with open("modules.json", "w") as outfile:
+    with open(working_modules_path, "w") as outfile:
         outfile.write(json_object)
 
 def save_reminder_state(reminded, date):
@@ -381,7 +381,7 @@ def save_reminder_state(reminded, date):
 
     json_object = json.dumps(dictionary, indent=4)
 
-    with open("reminder.json", "w") as outfile:
+    with open(working_reminder_path, "w") as outfile:
         outfile.write(json_object)
 
 
