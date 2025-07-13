@@ -20,14 +20,14 @@ else:
 bundled_checkbox__path = os.path.join(base_dir, 'checkbox_states.json')
 bundled_reminder__path = os.path.join(base_dir, 'reminder.json')
 bundled_modules__path = os.path.join(base_dir, 'modules.json')
-bundled_token__path = os.path.join(base_dir, 'token.json')
-bundled_credentials__path = os.path.join(base_dir, 'credentials.json')
+bundled_credentials_path = os.path.join(base_dir, 'credentials.json')
 
 # Path to working (writable) json files in App Data
 working_dir = os.path.dirname(os.path.abspath(os.getenv('APPDATA') if getattr(sys, 'frozen', False) else __file__))
 working_checkbox_path = os.path.join(working_dir, 'checkbox_states.json')
 working_reminder_path = os.path.join(working_dir, 'reminder.json')
 working_modules_path = os.path.join(working_dir, 'modules.json')
+working_token_path = os.path.join(working_dir, 'token.json')
 
 # If working jsons doesn't exist, copy from bundled json files
 if not os.path.exists(working_checkbox_path):
