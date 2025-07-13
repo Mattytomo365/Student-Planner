@@ -1,9 +1,52 @@
 import datetime
-from datetime import time
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 import json
 import os
+import shutil
+import sys
+
+#def json_setup():
+#global working_checkbox_path, working_reminder_path, working_modules_path
+# Get the directory where the executable is running
+if getattr(sys, 'frozen', False):
+    # Running as a bundled app
+    base_dir = sys._MEIPASS
+else:
+    # Running as script
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+
+# Path to bundled (read-only) json files
+bundled_checkbox__path = os.path.join(base_dir, 'checkbox_states.json')
+bundled_reminder__path = os.path.join(base_dir, 'reminder.json')
+bundled_modules__path = os.path.join(base_dir, 'modules.json')
+
+# Path to working (writable) json files in App Data
+working_dir = os.path.dirname(os.path.abspath(os.getenv('APPDATA') if getattr(sys, 'frozen', False) else __file__))
+working_checkbox_path = os.path.join(working_dir, 'checkbox_states.json')
+working_reminder_path = os.path.join(working_dir, 'reminder.json')
+working_modules_path = os.path.join(working_dir, 'modules.json')
+
+# If working jsons doesn't exist, copy from bundled json files
+if not os.path.exists(working_checkbox_path):
+    shutil.copyfile(bundled_checkbox__path, working_checkbox_path)
+
+if not os.path.exists(working_reminder_path):
+    shutil.copyfile(bundled_reminder__path, working_reminder_path)
+
+if not os.path.exists(working_modules_path):
+    shutil.copyfile(bundled_modules__path, working_modules_path)
+
+
+def file_exists(path):
+    """
+    Checks if a file exists at the given path.
+    """
+    is_exists = os.path.exists(path)
+    if is_exists:
+        return True
+    else:
+        return False
 
 def get_upcoming_events(creds):
     """
@@ -339,12 +382,4 @@ def save_reminder_state(reminded, date):
     with open("reminder.json", "w") as outfile:
         outfile.write(json_object)
 
-def file_exists(path):
-    """
-    Checks if a file exists at the given path.
-    """
-    is_exists = os.path.exists(path)
-    if is_exists:
-        return True
-    else:
-        return False
+

@@ -17,6 +17,7 @@ class StudentPlannerApp:
         self.main.resizable(False, False)
 
         self.creds = authentication()
+        #json_setup()
         self.task_vars = []
 
         self.setup_styles()
@@ -49,7 +50,8 @@ class StudentPlannerApp:
         self.construct_buttons()
 
 
-        with open('reminder.json', 'r') as file:
+        #with open('reminder.json', 'r') as file:
+        with open(working_reminder_path, 'r') as file:
             reminder = json.load(file)
             reminded = reminder['reminded']
             reminder_date = reminder['date']
@@ -96,7 +98,8 @@ class StudentPlannerApp:
 
 
         try:
-            with open('checkbox_states.json', 'r') as file:
+            #with open('checkbox_states.json', 'r') as file:
+            with open(working_checkbox_path, 'r') as file:
                 states = json.load(file)
         except FileNotFoundError:
             states = {}
@@ -310,7 +313,8 @@ class StudentPlannerApp:
         module_var = tk.StringVar(self.add_popup)
         module_dropdown = ttk.Combobox(self.add_popup, width=19, textvariable=module_var)
 
-        with open('modules.json', 'r') as file:
+        #with open('modules.json', 'r') as file:
+        with open(working_modules_path, 'r') as file:
             modules = json.load(file)
             module_dropdown['values'] = (modules['10'], modules['9'], modules['6'], modules['8'])
 
@@ -373,7 +377,8 @@ class StudentPlannerApp:
             title_entry.insert(0, str(details["summary"]))
             title_entry.grid(row=2, column=1, pady=15, sticky='w')
 
-            with open ("modules.json", "r") as f:
+            #with open ("modules.json", "r") as f:
+            with open (working_modules_path, "r") as f:
                 modules = json.load(f)
                 module = modules[f'{details["colorId"]}']
 
@@ -384,7 +389,8 @@ class StudentPlannerApp:
             module_dropdown.insert(0, str(module))
             
 
-            with open('modules.json', 'r') as file:
+            #with open('modules.json', 'r') as file:
+            with open(working_modules_path, 'r') as file:
                 modules = json.load(file)
                 module_dropdown['values'] = (modules['10'], modules['9'], modules['6'], modules['8'])
 
@@ -506,7 +512,8 @@ class StudentPlannerApp:
         module_var = tk.StringVar(self.add_assignment_popup)
         module_dropdown = ttk.Combobox(self.add_assignment_popup, width=19, textvariable=module_var)
 
-        with open('modules.json', 'r') as file:
+        #with open('modules.json', 'r') as file:
+        with open(working_modules_path, 'r') as file:
             modules = json.load(file)
             module_dropdown['values'] = (modules['10'], modules['9'], modules['6'], modules['8'])
 
@@ -561,7 +568,8 @@ class StudentPlannerApp:
             title_entry.insert(0, str(details["summary"]))
             title_entry.grid(row=2, column=1, pady=15, sticky='w')
 
-            with open ("modules.json", "r") as f:
+            #with open ("modules.json", "r") as f:
+            with open (working_modules_path, "r") as f:
                 modules = json.load(f)
                 module = modules[f'{details["colorId"]}']
 
@@ -572,7 +580,8 @@ class StudentPlannerApp:
             module_dropdown.insert(0, str(module))
             
 
-            with open('modules.json', 'r') as file:
+            # with open('modules.json', 'r') as file:
+            with open(working_modules_path, 'r') as file:
                 modules = json.load(file)
                 module_dropdown['values'] = (modules['10'], modules['9'], modules['6'], modules['8'])
 
@@ -621,8 +630,10 @@ class StudentPlannerApp:
 
         i = 0
 
-        if file_exists("modules.json"):
-            with open('modules.json', 'r') as file:
+        # if file_exists("modules.json"):
+        #     with open('modules.json', 'r') as file:
+        if file_exists(working_modules_path):
+            with open(working_modules_path, 'r') as file:
                 modules_data = json.load(file)
                 for module in modules_data.values():
                     module_label = tk.Label(modules_frame, text=module, font=('Arial', 15), bg="white", fg="black")
@@ -685,8 +696,10 @@ class StudentPlannerApp:
         add_modules_button.grid(row=4, column=0, pady=15, columnspan=2)
 
     def clear_modules(self, button_to_enable, button_to_disable_1, button_to_disable_2, button_to_disable_3):
-        if file_exists("modules.json"):
-            os.remove("modules.json")
+        # if file_exists("modules.json"):
+        #     os.remove("modules.json")
+        if file_exists(working_modules_path):
+            os.remove(working_modules_path)
         else:
             messagebox.showerror(title='Error', message='There are no modules to delete')
 
@@ -702,7 +715,8 @@ class StudentPlannerApp:
         Function to save the state of the main window when it is closed.
         """
 
-        with open('checkbox_states.json', 'w') as file:
+        #with open('checkbox_states.json', 'w') as file:
+        with open(working_checkbox_path, 'w') as file:
             states = {id : var.get() for id, var in zip([x[0] for x in self.events], self.task_vars)} # Pairs the summary with the variable, allowing to iterate through the lists simultaneously.
             json.dump(states, file)
 
