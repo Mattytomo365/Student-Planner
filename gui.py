@@ -130,7 +130,7 @@ class StudentPlannerApp:
 
 
     def construct_buttons(self):
-        file_exists_flag = file_exists("modules.json")
+        file_exists_flag = file_exists(working_modules_path)
 
         task_actions_frame = tk.Frame(self.main, width=50, height=20, bg = "white", highlightbackground="black", highlightthickness=1)
         task_actions_frame.grid(row=1, column=1, sticky="nsw", padx=10, pady=50)
