@@ -6,8 +6,7 @@ import os
 import shutil
 import sys
 
-#def json_setup():
-#global working_checkbox_path, working_reminder_path, working_modules_path
+
 # Get the directory where the executable is running
 if getattr(sys, 'frozen', False):
     # Running as a bundled app
@@ -19,7 +18,6 @@ else:
 # Path to bundled (read-only) json files
 bundled_checkbox__path = os.path.join(base_dir, 'checkbox_states.json')
 bundled_reminder__path = os.path.join(base_dir, 'reminder.json')
-bundled_modules__path = os.path.join(base_dir, 'modules.json')
 bundled_credentials_path = os.path.join(base_dir, 'credentials.json')
 
 # Path to working (writable) json files in App Data
@@ -40,9 +38,6 @@ if not os.path.exists(working_checkbox_path):
 
 if not os.path.exists(working_reminder_path):
     shutil.copyfile(bundled_reminder__path, working_reminder_path)
-
-if not os.path.exists(working_modules_path):
-    shutil.copyfile(bundled_modules__path, working_modules_path)
 
 
 def file_exists(path):
