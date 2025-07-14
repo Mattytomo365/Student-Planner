@@ -23,7 +23,12 @@ bundled_modules__path = os.path.join(base_dir, 'modules.json')
 bundled_credentials_path = os.path.join(base_dir, 'credentials.json')
 
 # Path to working (writable) json files in App Data
-working_dir = os.path.dirname(os.path.abspath(os.getenv('APPDATA') if getattr(sys, 'frozen', False) else __file__))
+if getattr(sys, 'frozen', False):
+    working_dir = os.path.join(os.getenv('APPDATA'), 'StudentPlanner')
+    os.makedirs(working_dir, exist_ok=True)
+else:
+    working_dir = os.path.dirname(os.path.abspath(__file__))
+
 working_checkbox_path = os.path.join(working_dir, 'checkbox_states.json')
 working_reminder_path = os.path.join(working_dir, 'reminder.json')
 working_modules_path = os.path.join(working_dir, 'modules.json')

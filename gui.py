@@ -378,7 +378,7 @@ class StudentPlannerApp:
             title_entry.grid(row=2, column=1, pady=15, sticky='w')
 
             #with open ("modules.json", "r") as f:
-            with open (working_modules_path, "r") as f:
+            with open(working_modules_path, "r") as f:
                 modules = json.load(f)
                 module = modules[f'{details["colorId"]}']
 
