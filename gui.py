@@ -289,6 +289,19 @@ class StudentPlannerApp:
                 popup.destroy()
                 main.deiconify()
 
+    def on_modules_submit(self, module_1, module_2, module_3, popup):
+        valid = True
+
+        if not self.entry_validation(module_1=module_1, module_2=module_2, module_3=module_3):
+            valid = False
+
+        if valid:
+            add_modules(module_1, module_2, module_3)
+            self.saved_states()
+            self.construct_checklist()
+            popup.destroy()
+            main.deiconify()
+
 
     # Popup functions
 
@@ -670,9 +683,7 @@ class StudentPlannerApp:
         module_3_entry.grid(row=3, column=1, pady=15, sticky='w')
 
         def save_modules():
-            add_modules(module_1_entry.get(), module_2_entry.get(), module_3_entry.get())
-            self.modules_popup.destroy()
-            main.deiconify()
+            self.on_modules_submit(module_1_entry.get(), module_2_entry.get(), module_3_entry.get(), self.add_modules_popup)
             button_to_disable.config(state="disabled")
             button_to_enable_1.config(state="normal")
             button_to_enable_2.config(state="normal")
@@ -702,7 +713,7 @@ class StudentPlannerApp:
         """
         Function to save the state of the main window when it is closed.
         """
-        
+
         with open(working_checkbox_path, 'w') as file:
             states = {id : var.get() for id, var in zip([x[0] for x in self.events], self.task_vars)} # Pairs the summary with the variable, allowing to iterate through the lists simultaneously.
             json.dump(states, file)
