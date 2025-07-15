@@ -16,7 +16,9 @@ You can track this project's progress [Here](https://www.notion.so/1e618110f1f28
 
 The initial challenge I faced involved setting the project up in the Google Cloud Console. This introduced me to the standard of OAuth, which came with its own learning curve - understanding its concept, defining scopes of the application, and creating an OAuth client ID, allowing the application to authenticate itself against Google's OAuth servers. 
 
-Utilisation of the credentials to create access tokens, taught me how to enable secure access to protected resources on a user's behalf, exposing me to the Google Client Library, which simplified access and interaction with Google's services. This library enabled the core functionality of the application, allowing me to call the Calendar API endpoints in my Python code to access, create, modify, and delete events. 
+Utilisation of the credentials to create access tokens, taught me how to enable secure access to protected resources on a user's behalf, exposing me to the Google Client Library, which simplified access and interaction with Google's services. This library enabled the core functionality of the application, allowing me to call the Calendar API endpoints in my Python code to access, create, modify, and delete events.
+
+Due to the strong reliance this application has on storing data in JSON files, I created a system to copy bundled files from the temporary directory created by Pyinstaller, and transfer them into the users working directory. This allows data such as module information, checklist checkbox states, assignment reminder state, credentials, and OAuth access tokens to be accessed and modified if necessary.
 
 ---
 
