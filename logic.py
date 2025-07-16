@@ -22,7 +22,11 @@ bundled_credentials_path = os.path.join(base_dir, 'credentials.json')
 
 # Path to working (writable) json files in App Data
 if getattr(sys, 'frozen', False):
-    working_dir = os.path.join(os.getenv('APPDATA'), 'StudentPlanner')
+    if os.name == "nt":
+        working_dir = os.path.join(os.getenv('APPDATA'), 'StudentPlanner')
+    elif os.name == "posix":
+        working_dir = os.path.join(os.path.expanduser('~/Library/Application Support'), 'StudentPlanner')
+        
     os.makedirs(working_dir, exist_ok=True)
 else:
     working_dir = os.path.dirname(os.path.abspath(__file__))
