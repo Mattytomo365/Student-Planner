@@ -454,6 +454,7 @@ class StudentPlannerApp:
             self.construct_checklist()
             main.deiconify()
             self.delete_popup.destroy()
+            self.delete_date_popup.destroy()
         
         self.delete_popup = tk.Toplevel(self.main)
         self.delete_popup.title("Delete Task/Assignment")
@@ -683,7 +684,7 @@ class StudentPlannerApp:
         module_3_entry.grid(row=3, column=1, pady=15, sticky='w')
 
         def save_modules():
-            self.on_modules_submit(module_1_entry.get(), module_2_entry.get(), module_3_entry.get(), self.add_modules_popup)
+            self.on_modules_submit(module_1_entry.get(), module_2_entry.get(), module_3_entry.get(), self.modules_popup)
             button_to_disable.config(state="disabled")
             button_to_enable_1.config(state="normal")
             button_to_enable_2.config(state="normal")
