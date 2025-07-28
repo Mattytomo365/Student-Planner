@@ -83,8 +83,6 @@ Due to the strong reliance this application has on storing data in JSON files, I
 
 Download the latest executable file (`.exe`) displayed in the **Releases** tab.
 
-**Note** 
-
 #### Option 2 - Source Code:
 
 1. Clone the repository:
