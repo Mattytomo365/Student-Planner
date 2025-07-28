@@ -18,7 +18,7 @@ The initial challenge I faced involved setting the project up in the Google Clou
 
 Utilisation of the credentials to create access tokens, taught me how to enable secure access to protected resources on a user's behalf, exposing me to the Google Client Library, which simplified access and interaction with Google's services. This library enabled the core functionality of the application, allowing me to call the Calendar API endpoints in my Python code to access, create, modify, and delete events.
 
-Due to the strong reliance this application has on storing data in JSON files, I created a system to copy bundled files from the temporary directory created by Pyinstaller, and transfer them into the users working directory. This allows data such as module information, checklist checkbox states, assignment reminder state, credentials, and OAuth access tokens to be accessed and modified if necessary.
+I gained exposure to JSON file management due to the application's strong reliance on them. This took the form of a system which copies bundled files from the temporary directory created by Pyinstaller, transferring them into the users working directory, allowing states of the application's components to be accessed and modified when necessary, e.g. checkbox states, modules, deadline reminder state etc.
 
 ---
 
