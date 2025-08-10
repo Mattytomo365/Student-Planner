@@ -69,7 +69,7 @@ def get_upcoming_events(creds):
          service.events()
             .list(
                 calendarId="primary", # accesses the user's primary calendar.
-                timeMin=now, # Only return events that start after the current time.
+                timeMin=now, # Only return events that start today.
                 q="task", # Only returns tasks and not assignments
                 timeMax=tomorrow, # Only return events that start before the next day.
                 singleEvents=True, # Returns only single events, not recurring events.

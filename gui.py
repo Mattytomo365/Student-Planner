@@ -61,7 +61,7 @@ class StudentPlannerApp:
                 messagebox.showinfo(title='Reminder', message=f'You have an upcoming deadline for {assignment[1]} today')
                 reminded = 'True'
                 reminder_date = today
-        if reminded == 'True' and (int(reminder_date[-2:])) < (int(today[-2:])):
+        if reminded == 'True' and (((int(reminder_date[-2:])) < (int(today[-2:]))) or ((int(reminder_date[5:-3])) < (int(today[5:-3])))):
             reminded = 'False'
 
         save_reminder_state(reminded, reminder_date)
