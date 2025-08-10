@@ -50,7 +50,6 @@ class StudentPlannerApp:
         self.construct_buttons()
 
 
-        #with open('reminder.json', 'r') as file:
         with open(working_reminder_path, 'r') as file:
             reminder = json.load(file)
             reminded = reminder['reminded']
@@ -98,7 +97,6 @@ class StudentPlannerApp:
 
 
         try:
-            #with open('checkbox_states.json', 'r') as file:
             with open(working_checkbox_path, 'r') as file:
                 states = json.load(file)
         except FileNotFoundError:
