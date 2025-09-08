@@ -4,21 +4,19 @@
 
 ## Overview
 
-**Student Planner** is a Python project that allows students to plan their daily tasks, from general tasks, to academic tasks synced from the user's google calendar. It offers a more student-based interface, focusing on student workflows and daily academic/general task management. This is achieved by integration with the Google Calendar API.
+Student Planner is a Python & Tkinter project centred around turning a student's day into a focused checklist, syncing tasks & assignments with the user's Google Calendar.
 
-The core functionality of this application centres around a day-to-day checklist, allowing the users to add, edit, categorise, and complete tasks with ease. Certain days can also be visually tagged (e.g. rest day, submission day, deadline day), and tasks will also be tagged (e.g. general, academic). Support for recurring tasks will be introduced (e.g. lectures, study sessions)
+Tasks can be added, modified, deleted, categorised (module specific or general) and checked off through a simple, navigable interface featuring a prominent day-to-day checklist.
 
-You can track this project's progress [Here](https://www.notion.so/1e618110f1f280d79bbdceff2d6b615f?v=1e618110f1f281dca200000c9ddb7b7b&pvs=4)
+The application integrates and syncs with the user's Google Calendar via the Google Calendar API (facilitating OAuth 2.0 through Google Cloud Console) to read/write tasks, keeping schedules in a centralised location.
 
 ---
 
 ## What I've Learned
 
-The initial challenge I faced involved setting the project up in the Google Cloud Console. This introduced me to the standard of OAuth, which came with its own learning curve - understanding its concept, defining scopes of the application, and creating an OAuth client ID, allowing the application to authenticate itself against Google's OAuth servers. 
+An understanding of OAuth 2.0 was required in order to configure this project in the Google Cloud Console. I learnt fundamentals such as scopes and credentials allowing the application to authenticate itself against Google's OAuth servers. Credentials were also utilised to create & manage access tokens, enabling secure access to protected resources on the user's behalf.
 
-Utilisation of the credentials to create access tokens, taught me how to enable secure access to protected resources on a user's behalf, exposing me to the Google Client Library, which simplified access and interaction with Google's services. This library enabled the core functionality of the application, allowing me to call the Calendar API endpoints in my Python code to access, create, modify, and delete events.
-
-I gained exposure to JSON file management due to the application's strong reliance on them. This took the form of a system which copies bundled files from the temporary directory created by Pyinstaller, transferring them into the users working directory, allowing states of the application's components to be accessed and modified when necessary, e.g. checkbox states, modules, deadline reminder state etc.
+Reliable JSON file management was required to manage this project's state across multiple environments (MacOS & Windows). This took the form of a system which copies bundled files from the temporary directory created by Pyinstaller, transferring them into the users working directory, allowing states of the application's components to be accessed and modified when necessary.
 
 ---
 
