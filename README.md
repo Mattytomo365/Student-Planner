@@ -106,7 +106,7 @@ The application integrates and syncs with the user's Google Calendar via the Goo
 
 ### Usage
 
-1. **Add Modules**: Click "Add Modules" and enter your module names. This enables task and assignment management.
+1. **Add Modules**: Click "Add Modules" and enter your module names, adjusting module amount if necessary.
 2. **Use Categories** Click "Use Categories" to switch "module" terminology to a more generic "category" terminology
 3. **Add/Edit Tasks**: Use the "Add Task" or "Edit Task" buttons to manage your daily tasks.
 4. **Add/Edit Assignments**: Use the "Add Assignment" or "Edit Assignment" buttons for academic deadlines.
