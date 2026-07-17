@@ -279,7 +279,7 @@ class PlannerWindow(QMainWindow):
         self.progress_animation = None
         self.module_label_mode = self.load_module_label_mode()
 
-        self.setWindowTitle("Student Planner")
+        self.setWindowTitle("Desktop Planner")
         self.resize(1200, 820)
         self.setMinimumSize(1120, 760)
         self.setStyleSheet(APP_STYLE)
@@ -374,7 +374,7 @@ class PlannerWindow(QMainWindow):
         right_layout.setContentsMargins(18, 18, 18, 18)
         right_layout.setSpacing(8)
 
-        eyebrow = QLabel("Student Planner")
+        eyebrow = QLabel("Desktop Planner")
         eyebrow.setProperty("role", "eyebrow")
         self.hero_title = QLabel("")
         self.hero_title.setProperty("role", "heroTitle")
