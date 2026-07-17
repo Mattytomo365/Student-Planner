@@ -1,740 +1,1214 @@
-import tkinter as tk
-from tkinter import ttk, messagebox
-from tkcalendar import DateEntry
-from logic import *
-from main import *
+import json
+import os
 from datetime import datetime
 
-class StudentPlannerApp:
+from PyQt5.QtCore import QEasingCurve, QPropertyAnimation, QDate, QTime, Qt
+from PyQt5.QtGui import QColor, QFont
+from PyQt5.QtWidgets import (
+    QApplication,
+    QCheckBox,
+    QComboBox,
+    QDateEdit,
+    QDialog,
+    QDialogButtonBox,
+    QFrame,
+    QGraphicsDropShadowEffect,
+    QGridLayout,
+    QHBoxLayout,
+    QLabel,
+    QLineEdit,
+    QListWidget,
+    QListWidgetItem,
+    QMainWindow,
+    QMessageBox,
+    QLayout,
+    QPushButton,
+    QProgressBar,
+    QScrollArea,
+    QSizePolicy,
+    QSpacerItem,
+    QSpinBox,
+    QTimeEdit,
+    QVBoxLayout,
+    QWidget,
+)
 
-    # Initialisation functions
+from logic import (
+    add_deadline,
+    add_modules,
+    add_task,
+    delete_task,
+    edit_deadline,
+    edit_task,
+    file_exists,
+    get_deadlines,
+    get_event_by_date,
+    get_upcoming_events,
+    retrieve_deadline_details,
+    retrieve_event_details,
+    save_reminder_state,
+    working_checkbox_path,
+    working_modules_path,
+    working_reminder_path,
+)
+from main import authentication
 
-    def __init__(self, main):
-        self.main = main
-        self.main.geometry("950x700")
-        self.main.title("Student Planner")
-        self.main.configure(bg="white")
-        self.main.resizable(False, False)
 
+MODULE_LABEL_MODE_PATH = os.path.join(os.path.dirname(working_modules_path), "module_label_mode.json")
+
+
+APP_STYLE = """
+QMainWindow {
+    background: #081912;
+}
+QDialog {
+    background: #7fa08a;
+}
+QWidget {
+    color: #163127;
+    font-family: "Avenir Next", "Helvetica Neue", sans-serif;
+}
+#Root {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+        stop:0 #06140e, stop:0.25 #0a1f16, stop:0.58 #113124, stop:1 #1b4a37);
+}
+#HeaderCard {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+        stop:0 #163f2f, stop:0.35 #123526, stop:0.72 #0f2b1f, stop:1 #0a1d15);
+    border-radius: 26px;
+}
+#ProgressCard {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+        stop:0 #214f3c, stop:0.45 #173a2b, stop:1 #10261c);
+    border: 1px solid rgba(86, 132, 103, 0.45);
+    border-radius: 20px;
+}
+#Card {
+    background: rgba(124, 156, 133, 0.98);
+    border: 1px solid rgba(102, 134, 112, 0.7);
+    border-radius: 22px;
+}
+#MutedCard {
+    background: rgba(111, 143, 120, 0.96);
+    border-radius: 18px;
+}
+QLabel[role="eyebrow"] {
+    color: #a7d7b8;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+QLabel[role="heroTitle"] {
+    color: #f3fbf5;
+    font-size: 34px;
+    font-weight: 700;
+}
+QLabel[role="heroBody"] {
+    color: #c0daca;
+    font-size: 13px;
+}
+QLabel[role="sectionTitle"] {
+    color: #163127;
+    font-size: 24px;
+    font-weight: 600;
+}
+QLabel[role="sectionBody"] {
+    color: #5b7468;
+    font-size: 12px;
+}
+QProgressBar {
+    border: none;
+    border-radius: 999px;
+    background: rgba(198, 225, 208, 0.24);
+    min-height: 18px;
+    max-height: 18px;
+    text-align: center;
+}
+QProgressBar::chunk {
+    border-radius: 999px;
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+        stop:0 #3d8f68, stop:1 #8bc08e);
+}
+QPushButton {
+    border: none;
+    border-radius: 16px;
+    padding: 8px 14px;
+    min-height: 38px;
+    font-size: 12px;
+    font-weight: 600;
+}
+QPushButton[variant="primary"] {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+        stop:0 #3b8c64, stop:1 #72ad7f);
+    color: white;
+}
+QPushButton[variant="primary"]:hover {
+    background: #21533d;
+}
+QPushButton[variant="secondary"] {
+    background: #92b19d;
+    color: #21533d;
+}
+QPushButton[variant="secondary"]:hover {
+    background: #84a692;
+}
+QPushButton:disabled {
+    background: #95b3a0;
+    color: #6d8476;
+}
+QCheckBox {
+    spacing: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #163127;
+}
+QCheckBox::indicator {
+    width: 18px;
+    height: 18px;
+    border-radius: 9px;
+    border: 2px solid #bdd1c3;
+    background: transparent;
+}
+QCheckBox::indicator:checked {
+    background: #3b8c64;
+    border: 2px solid #3b8c64;
+}
+QLineEdit, QComboBox, QDateEdit, QTimeEdit, QListWidget, QSpinBox {
+    background: #87a691;
+    border: 1px solid #6c8d77;
+    border-radius: 13px;
+    padding: 8px 10px;
+    font-size: 12px;
+}
+QDialog QLineEdit, QDialog QComboBox, QDialog QDateEdit, QDialog QTimeEdit, QDialog QListWidget, QDialog QSpinBox {
+    background: #9fb9a8;
+    border: 1px solid #7f9e8a;
+    border-radius: 13px;
+    padding: 8px 10px;
+    font-size: 12px;
+}
+QDialog QComboBox QAbstractItemView,
+QDialog QListView,
+QDialog QCalendarWidget QWidget,
+QDialog QCalendarWidget QAbstractItemView {
+    background: #9fb9a8;
+    color: #163127;
+    selection-background-color: #86a795;
+    selection-color: #163127;
+}
+QDialog QCalendarWidget QToolButton {
+    background: #95b3a0;
+    color: #163127;
+    border: none;
+    border-radius: 12px;
+    padding: 6px 10px;
+}
+QDialog QCalendarWidget QMenu {
+    background: #9fb9a8;
+    color: #163127;
+}
+QDialog QCalendarWidget QSpinBox {
+    background: #9fb9a8;
+    color: #163127;
+    border: 1px solid #7f9e8a;
+    border-radius: 10px;
+}
+QDialogButtonBox QPushButton {
+    background: #95b3a0;
+    color: #163127;
+    border: none;
+    border-radius: 16px;
+    padding: 8px 14px;
+    min-height: 38px;
+    font-size: 12px;
+    font-weight: 600;
+}
+QDialogButtonBox QPushButton:hover {
+    background: #a4c0af;
+}
+QListWidget {
+    padding: 6px;
+}
+QScrollArea {
+    border: none;
+    background: transparent;
+}
+QScrollArea > QWidget > QWidget {
+    background: transparent;
+}
+"""
+
+
+class PlannerWindow(QMainWindow):
+    MODULE_COLOURS = {
+        "1": "#7986CB",
+        "2": "#33B679",
+        "3": "#8E24AA",
+        "4": "#E67C73",
+        "5": "#F6BF26",
+        "10": "#2F6FE4",
+        "9": "#C45B14",
+        "6": "#A13FA0",
+        "8": "#7A5FE0",
+        "7": "#039BE5",
+        "11": "#D50000",
+    }
+
+    MODULE_BACKGROUNDS = {
+        "1": "#96A0C4",
+        "2": "#86B99E",
+        "3": "#A88CB1",
+        "4": "#B99A96",
+        "5": "#BDB174",
+        "10": "#87A892",
+        "9": "#8FAE99",
+        "6": "#97B59F",
+        "8": "#9FBAA6",
+        "7": "#8AB0BF",
+        "11": "#B98989",
+    }
+
+    def __init__(self):
+        super().__init__()
         self.creds = authentication()
-        #json_setup()
-        self.task_vars = []
+        self.events = []
+        self.deadlines = []
+        self.upcoming_deadlines = []
+        self.task_checkboxes = []
+        self.progress_animation = None
+        self.module_label_mode = self.load_module_label_mode()
 
-        self.setup_styles()
-        self.build_main_window()
-    
-    def setup_styles(self):
-        style = ttk.Style(self.main)
-        style.theme_use("clam")
-        style.configure("Green.TButton",
-                        background="green",
-                        foreground="white",
-                        font=("Helvetica", 12),
-                        padding=6),
-        style.configure("Green.Horizontal.TProgressbar", 
-                        troughcolor="white",
-                        background="green",
-                        foreground="green",
-                        bordercolor="black",
-                        text="Progress")
-        
-    def build_main_window(self):
+        self.setWindowTitle("Student Planner")
+        self.resize(1200, 820)
+        self.setMinimumSize(1120, 760)
+        self.setStyleSheet(APP_STYLE)
+
+        self.root = QWidget(objectName="Root")
+        self.setCentralWidget(self.root)
+        self.main_layout = QVBoxLayout(self.root)
+        self.main_layout.setContentsMargins(22, 18, 22, 18)
+        self.main_layout.setSpacing(22)
+
+        self.build_ui()
+        self.refresh_dashboard(initial=True)
+
+    def build_ui(self):
+        self.header_card = self.create_card(hero=True)
+        self.main_layout.addWidget(self.header_card)
+
+        content = QHBoxLayout()
+        content.setSpacing(22)
+        self.main_layout.addLayout(content, 1)
+
+        self.tasks_card = self.create_card()
+        self.sidebar = QVBoxLayout()
+        self.sidebar.setContentsMargins(0, 0, 0, 0)
+        self.sidebar.setSpacing(22)
+
+        content.addWidget(self.tasks_card, 3)
+
+        sidebar_host = QWidget()
+        sidebar_host.setLayout(self.sidebar)
+        content.addWidget(sidebar_host, 2)
+        content.setStretch(0, 3)
+        content.setStretch(1, 2)
+
+        self.actions_card = self.create_card()
+        self.modules_card = self.create_card()
+        self.sidebar.addWidget(self.actions_card, 1)
+        self.sidebar.addWidget(self.modules_card, 1)
+
+        self.build_header_card()
+        self.build_tasks_card()
+        self.build_actions_card()
+        self.build_modules_card()
+
+    def create_card(self, hero=False):
+        card = QFrame()
+        card.setObjectName("HeaderCard" if hero else "Card")
+        shadow = QGraphicsDropShadowEffect()
+        shadow.setBlurRadius(34)
+        shadow.setOffset(0, 12)
+        shadow.setColor(QColor(5, 18, 12, 90))
+        card.setGraphicsEffect(shadow)
+        return card
+
+    def make_button(self, text, variant, handler, enabled=True):
+        button = QPushButton(text)
+        button.setProperty("variant", variant)
+        button.setEnabled(enabled)
+        button.clicked.connect(handler)
+        button.style().unpolish(button)
+        button.style().polish(button)
+        return button
+
+    def make_section_header(self, title, body):
+        wrapper = QWidget()
+        layout = QVBoxLayout(wrapper)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(4)
+
+        title_label = QLabel(title)
+        title_label.setProperty("role", "sectionTitle")
+        body_label = QLabel(body)
+        body_label.setProperty("role", "sectionBody")
+        body_label.setWordWrap(True)
+
+        layout.addWidget(title_label)
+        layout.addWidget(body_label)
+        return wrapper
+
+    def build_header_card(self):
+        layout = QHBoxLayout(self.header_card)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(22)
+
+        left_wrap = QWidget()
+        left = QVBoxLayout(left_wrap)
+        left.setContentsMargins(18, 18, 18, 18)
+        left.setSpacing(6)
+        right_wrap = QFrame()
+        right_wrap.setObjectName("ProgressCard")
+        right_layout = QVBoxLayout(right_wrap)
+        right_layout.setContentsMargins(18, 18, 18, 18)
+        right_layout.setSpacing(8)
+
+        eyebrow = QLabel("Student Planner")
+        eyebrow.setProperty("role", "eyebrow")
+        self.hero_title = QLabel("")
+        self.hero_title.setProperty("role", "heroTitle")
+        self.hero_subtitle = QLabel("")
+        self.hero_subtitle.setProperty("role", "heroBody")
+        self.hero_subtitle.setWordWrap(True)
+
+        left.addWidget(eyebrow)
+        left.addWidget(self.hero_title)
+        left.addWidget(self.hero_subtitle)
+        left.addStretch(1)
+
+        progress_header = QHBoxLayout()
+        progress_label = QLabel("Today's progress")
+        progress_label.setStyleSheet("font-size: 12px; font-weight: 600; color: #E7F4EA;")
+        self.progress_percent = QLabel("0%")
+        self.progress_percent.setStyleSheet("font-size: 16px; font-weight: 600; color: #9FDCB3;")
+        progress_header.addWidget(progress_label)
+        progress_header.addStretch(1)
+        progress_header.addWidget(self.progress_percent)
+
+        self.progress_bar = QProgressBar()
+        self.progress_bar.setRange(0, 100)
+        self.progress_bar.setTextVisible(False)
+        self.progress_note = QLabel("Check off tasks as you finish them.")
+        self.progress_note.setProperty("role", "sectionBody")
+        self.progress_note.setStyleSheet("color: #C7DFCF; font-size: 12px;")
+        self.progress_note.setWordWrap(True)
+
+        right_layout.addLayout(progress_header)
+        right_layout.addWidget(self.progress_bar)
+        right_layout.addWidget(self.progress_note)
+        right_layout.addStretch(1)
+
+        layout.addWidget(left_wrap, 3)
+        layout.addWidget(right_wrap, 2)
+        layout.setStretch(0, 3)
+        layout.setStretch(1, 2)
+
+    def build_tasks_card(self):
+        layout = QVBoxLayout(self.tasks_card)
+        layout.setContentsMargins(18, 18, 18, 18)
+        layout.setSpacing(10)
+
+        top = QHBoxLayout()
+        heading = self.make_section_header("Today's focus", "Your day, surfaced in a cleaner dashboard.")
+        top.addWidget(heading)
+        top.addStretch(1)
+
+        self.task_scroll = QScrollArea()
+        self.task_scroll.setWidgetResizable(True)
+        self.task_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.task_scroll.setFrameShape(QFrame.NoFrame)
+
+        self.task_container = QWidget()
+        self.task_container.setStyleSheet("background: transparent;")
+        self.task_list_layout = QVBoxLayout(self.task_container)
+        self.task_list_layout.setContentsMargins(0, 0, 0, 0)
+        self.task_list_layout.setSpacing(8)
+        self.task_scroll.setWidget(self.task_container)
+
+        layout.addLayout(top)
+        layout.addWidget(self.task_scroll, 1)
+
+    def build_actions_card(self):
+        layout = QVBoxLayout(self.actions_card)
+        layout.setContentsMargins(18, 18, 18, 18)
+        layout.setSpacing(12)
+        title = QLabel("Task actions")
+        title.setProperty("role", "sectionTitle")
+        layout.addWidget(title)
+
+        self.actions_grid = QGridLayout()
+        self.actions_grid.setHorizontalSpacing(8)
+        self.actions_grid.setVerticalSpacing(8)
+        layout.addLayout(self.actions_grid)
+
+    def build_modules_card(self):
+        layout = QVBoxLayout(self.modules_card)
+        layout.setContentsMargins(18, 18, 18, 18)
+        layout.setSpacing(12)
+        self.modules_title = QLabel("")
+        self.modules_title.setProperty("role", "sectionTitle")
+        layout.addWidget(self.modules_title)
+
+        terminology_row = QHBoxLayout()
+        terminology_label = QLabel("Terminology")
+        terminology_label.setProperty("role", "sectionBody")
+        self.module_label_toggle = QCheckBox("Use categories")
+        self.module_label_toggle.setChecked(self.module_label_mode == "categories")
+        self.module_label_toggle.stateChanged.connect(self.toggle_module_label_mode)
+        terminology_row.addWidget(terminology_label)
+        terminology_row.addStretch(1)
+        terminology_row.addWidget(self.module_label_toggle)
+        layout.addLayout(terminology_row)
+
+        self.module_actions_grid = QGridLayout()
+        self.module_actions_grid.setHorizontalSpacing(8)
+        self.module_actions_grid.setVerticalSpacing(8)
+        layout.addLayout(self.module_actions_grid)
+
+        self.module_preview = QFrame()
+        self.module_preview.setObjectName("MutedCard")
+        self.module_preview_layout = QVBoxLayout(self.module_preview)
+        self.module_preview_layout.setContentsMargins(12, 12, 12, 12)
+        self.module_preview_layout.setSpacing(6)
+        layout.addWidget(self.module_preview)
+        self.update_module_labels()
+
+    def clear_layout(self, layout):
+        while layout.count():
+            item = layout.takeAt(0)
+            widget = item.widget()
+            child_layout = item.layout()
+            if widget is not None:
+                widget.deleteLater()
+            elif child_layout is not None:
+                self.clear_layout(child_layout)
+
+    def load_module_label_mode(self):
+        try:
+            with open(MODULE_LABEL_MODE_PATH, "r") as file:
+                mode = json.load(file).get("mode")
+                if mode in ("modules", "categories"):
+                    return mode
+        except (FileNotFoundError, json.JSONDecodeError):
+            pass
+        return "modules"
+
+    def save_module_label_mode(self):
+        with open(MODULE_LABEL_MODE_PATH, "w") as file:
+            json.dump({"mode": self.module_label_mode}, file, indent=4)
+
+    def module_label_singular(self):
+        return "Category" if self.module_label_mode == "categories" else "Module"
+
+    def module_label_plural(self):
+        return "Categories" if self.module_label_mode == "categories" else "Modules"
+
+    def update_module_labels(self):
+        if hasattr(self, "modules_title"):
+            self.modules_title.setText(self.module_label_plural())
+
+    def toggle_module_label_mode(self, checked=None):
+        self.module_label_mode = "categories" if self.module_label_toggle.isChecked() else "modules"
+        self.save_module_label_mode()
+        self.update_module_labels()
+        self.populate_modules()
+
+    def refresh_dashboard(self, initial=False):
         now = datetime.now()
-        day_of_week = now.strftime("%A %d %B")
-        today = now.strftime('%Y-%m-%d')
+        today = now.strftime("%Y-%m-%d")
+        self.events = get_upcoming_events(self.creds)
+        self.upcoming_deadlines = get_deadlines(self.creds, True)
+        self.deadlines = get_deadlines(self.creds, False)
 
-        header = tk.Label(main, text=day_of_week, font=("Arial", 40), bg="white", fg="green")
-        header.grid(row=0, column=0, columnspan=2, sticky="ew", padx=210, pady=5)
+        task_total = 0 if self.is_placeholder_tasks() else len(self.events)
+        deadline_total = 0 if self.is_placeholder_deadlines() else len(self.upcoming_deadlines)
 
-        self.construct_checklist()
-        self.construct_buttons()
+        self.hero_title.setText(now.strftime("%A %d %B"))
+        self.hero_subtitle.setText(
+            f"{task_total} task{'s' if task_total != 1 else ''} and "
+            f"{deadline_total} deadline{'s' if deadline_total != 1 else ''} lined up for today."
+        )
 
+        self.populate_tasks()
+        self.populate_actions()
+        self.populate_modules()
+        self.handle_deadline_reminder(today)
 
-        with open(working_reminder_path, 'r') as file:
+        if initial:
+            self.fade_in_cards()
+
+    def fade_in_cards(self):
+        for index, card in enumerate([self.header_card, self.tasks_card, self.actions_card, self.modules_card]):
+            effect = card.graphicsEffect()
+            if effect:
+                effect.setEnabled(True)
+            card.setWindowOpacity(0.0)
+            animation = QPropertyAnimation(card, b"windowOpacity", self)
+            animation.setStartValue(0.0)
+            animation.setEndValue(1.0)
+            animation.setDuration(350 + (index * 70))
+            animation.setEasingCurve(QEasingCurve.OutCubic)
+            animation.start()
+
+    def is_placeholder_tasks(self):
+        return len(self.events) == 1 and self.events[0][1] == "No tasks today"
+
+    def is_placeholder_deadlines(self):
+        return len(self.upcoming_deadlines) == 1 and self.upcoming_deadlines[0][1] == "No deadlines"
+
+    def populate_tasks(self):
+        self.clear_layout(self.task_list_layout)
+        self.task_checkboxes = []
+        states = self.load_checkbox_states()
+
+        if self.is_placeholder_tasks():
+            empty = self.create_soft_panel("Nothing scheduled right now", "Use the action panel to add a task or deadline for today.")
+            self.task_list_layout.addWidget(empty)
+            self.animate_progress(0)
+            return
+
+        for event_id, summary, colour_id in self.events:
+            row = self.create_task_row(event_id, summary, colour_id, states.get(event_id, False))
+            self.task_list_layout.addWidget(row)
+
+        self.task_list_layout.addStretch(1)
+        self.update_progress()
+
+    def create_soft_panel(self, title, body):
+        panel = QFrame()
+        panel.setObjectName("MutedCard")
+        layout = QVBoxLayout(panel)
+        layout.setContentsMargins(14, 14, 14, 14)
+        layout.setSpacing(5)
+
+        title_label = QLabel(title)
+        title_label.setStyleSheet("font-size: 16px; font-weight: 600; color: #163127;")
+        body_label = QLabel(body)
+        body_label.setProperty("role", "sectionBody")
+        body_label.setWordWrap(True)
+
+        layout.addWidget(title_label)
+        layout.addWidget(body_label)
+        return panel
+
+    def create_task_row(self, event_id, summary, colour_id, checked):
+        row = QFrame()
+        colour = self.MODULE_COLOURS.get(colour_id, "#2F7D5B")
+        background = self.MODULE_BACKGROUNDS.get(colour_id, "#ECF4EE")
+        row.setStyleSheet(
+            f"background: {background}; border: none; border-radius: 18px;"
+        )
+        layout = QHBoxLayout(row)
+        layout.setContentsMargins(14, 12, 14, 12)
+        layout.setSpacing(6)
+
+        checkbox = QCheckBox(summary)
+        checkbox.setChecked(checked)
+        checkbox.stateChanged.connect(self.update_progress)
+        checkbox.setStyleSheet(
+            f"""
+            QCheckBox {{
+                spacing: 10px;
+                font-size: 13px;
+                font-weight: 500;
+                color: {colour};
+                background: transparent;
+                border: none;
+            }}
+            QCheckBox::indicator {{
+                width: 18px;
+                height: 18px;
+                border-radius: 9px;
+                border: 2px solid #bdd1c3;
+                background: transparent;
+            }}
+            QCheckBox::indicator:checked {{
+                background: #3b8c64;
+                border: 2px solid #3b8c64;
+            }}
+            """
+        )
+        self.task_checkboxes.append((event_id, checkbox))
+
+        layout.addWidget(checkbox, 1)
+        return row
+
+    def load_checkbox_states(self):
+        try:
+            with open(working_checkbox_path, "r") as file:
+                return json.load(file)
+        except FileNotFoundError:
+            return {}
+
+    def update_progress(self):
+        total = len(self.task_checkboxes)
+        checked = sum(1 for _, checkbox in self.task_checkboxes if checkbox.isChecked())
+        progress = int((checked / total) * 100) if total else 0
+        self.progress_note.setText(
+            f"{checked} of {total} task{'s' if total != 1 else ''} completed." if total else "Check off tasks as you finish them."
+        )
+        self.animate_progress(progress)
+
+    def animate_progress(self, target):
+        self.progress_percent.setText(f"{target}%")
+        self.progress_animation = QPropertyAnimation(self.progress_bar, b"value", self)
+        self.progress_animation.setStartValue(self.progress_bar.value())
+        self.progress_animation.setEndValue(target)
+        self.progress_animation.setDuration(280)
+        self.progress_animation.setEasingCurve(QEasingCurve.OutCubic)
+        self.progress_animation.start()
+
+    def populate_actions(self):
+        self.clear_layout(self.actions_grid)
+        modules_exist = file_exists(working_modules_path)
+
+        add_task_button = self.make_button("Add Task", "primary", self.open_add_task_dialog, modules_exist)
+        edit_task_button = self.make_button("Edit Task", "secondary", self.open_edit_task_dialog, modules_exist)
+        add_deadline_button = self.make_button("Add Deadline", "primary", self.open_add_deadline_dialog, modules_exist)
+        edit_deadline_button = self.make_button("Edit Deadline", "secondary", self.open_edit_deadline_dialog, modules_exist)
+        delete_button = self.make_button("Delete Item", "secondary", self.open_delete_dialog, True)
+
+        self.actions_grid.addWidget(add_task_button, 0, 0)
+        self.actions_grid.addWidget(edit_task_button, 0, 1)
+        self.actions_grid.addWidget(add_deadline_button, 1, 0)
+        self.actions_grid.addWidget(edit_deadline_button, 1, 1)
+        self.actions_grid.addWidget(delete_button, 2, 0, 1, 2)
+
+    def populate_modules(self):
+        self.clear_layout(self.module_actions_grid)
+        self.clear_layout(self.module_preview_layout)
+
+        modules_exist = file_exists(working_modules_path)
+        label_plural = self.module_label_plural()
+        add_modules_button = self.make_button(f"Add {label_plural}", "primary", self.open_modules_dialog, not modules_exist)
+        edit_modules_button = self.make_button(f"Edit {label_plural}", "secondary", self.open_edit_modules_dialog, modules_exist)
+        clear_modules_button = self.make_button(f"Clear {label_plural}", "secondary", self.clear_modules, modules_exist)
+
+        self.module_actions_grid.addWidget(add_modules_button, 0, 0)
+        self.module_actions_grid.addWidget(edit_modules_button, 0, 1)
+        self.module_actions_grid.addWidget(clear_modules_button, 1, 0, 1, 2)
+
+        if not modules_exist:
+            self.module_preview_layout.addWidget(
+                QLabel(f"Add your {label_plural.lower()} to unlock colour coding across the planner.")
+            )
+            return
+
+        with open(working_modules_path, "r") as file:
+            modules_data = json.load(file)
+
+        for key, module in modules_data.items():
+            row = QWidget()
+            layout = QHBoxLayout(row)
+            layout.setContentsMargins(0, 0, 0, 0)
+            layout.setSpacing(10)
+
+            dot = QLabel()
+            dot.setFixedSize(14, 14)
+            dot.setStyleSheet(f"background: {self.MODULE_COLOURS.get(key, '#3C8D65')}; border-radius: 7px;")
+            label = QLabel(module)
+            label.setStyleSheet("font-size: 12px; font-weight: 700; color: #163127;")
+
+            layout.addWidget(dot)
+            layout.addWidget(label)
+            layout.addStretch(1)
+            self.module_preview_layout.addWidget(row)
+
+        self.module_preview_layout.addStretch(1)
+
+    def handle_deadline_reminder(self, today):
+        with open(working_reminder_path, "r") as file:
             reminder = json.load(file)
-            reminded = reminder['reminded']
-            reminder_date = reminder['date']
+            reminded = reminder["reminded"]
+            reminder_date = reminder["date"]
 
-        for assignment in self.upcoming_assignments: 
-            if assignment[1] != 'No assignments' and reminded == 'False':
-                messagebox.showinfo(title='Reminder', message=f'You have an upcoming deadline for {assignment[1]} today')
-                reminded = 'True'
+        for deadline in self.upcoming_deadlines:
+            if deadline[1] != "No deadlines" and reminded == "False":
+                QMessageBox.information(self, "Reminder", f"You have an upcoming deadline for {deadline[1]} today")
+                reminded = "True"
                 reminder_date = today
-        if reminded == 'True' and (((int(reminder_date[-2:])) < (int(today[-2:]))) or ((int(reminder_date[5:-3])) < (int(today[5:-3])))):
-            reminded = 'False'
+                break
+
+        if reminded == "True":
+            try:
+                reminder_dt = datetime.strptime(reminder_date, "%Y-%m-%d").date()
+                today_dt = datetime.strptime(today, "%Y-%m-%d").date()
+                if reminder_dt < today_dt:
+                    reminded = "False"
+            except ValueError:
+                reminded = "False"
+                reminder_date = today
 
         save_reminder_state(reminded, reminder_date)
 
+    def save_states(self):
+        with open(working_checkbox_path, "w") as file:
+            json.dump({event_id: checkbox.isChecked() for event_id, checkbox in self.task_checkboxes}, file)
 
-    def construct_checklist(self):
-
-        self.events = get_upcoming_events(self.creds)
-        self.upcoming_assignments = get_assignments(self.creds, True)
-        self.assignments = get_assignments(self.creds, False)
-
-        def toggle():
-            """
-            Function to toggle the state of the checkbox and update the progress bar.
-            """
-            checked = 0
-            unchecked = 0
-            total = 0
-
-            for var in self.task_vars:
-                if var.get():
-                    checked += 1
-                else:
-                    unchecked += 1
-                total += 1
-
-            self.progress["value"] = (checked / total) * 100 if total > 0 else 0
-
-        checklist_frame = tk.Frame(main, width=30, height=20, bg = "white", highlightbackground="green", highlightthickness=1)
-        checklist_frame.grid(row=1, column=0, sticky="nsw", padx=45, pady=50, rowspan=2)
-
-        checklist_header = tk.Label(checklist_frame, text="To-Do", font=("Arial", 20), bg="white", fg="green")
-        checklist_header.grid(row=0, column=0, padx=10, pady=10, sticky="nsw")
-
-
-        try:
-            with open(working_checkbox_path, 'r') as file:
-                states = json.load(file)
-        except FileNotFoundError:
-            states = {}
-
-        self.task_vars = []
-
-        print(self.events)
-        for id, summary, colour_id in self.events:
-            if colour_id == "10":
-                colour = "dark green"
-            elif colour_id == "9":
-                colour = "blue"
-            elif colour_id == "6":
-                colour = "orange"
-            elif colour_id == "8":
-                colour = "grey"
-            else:
-                colour = "black"
-            var = tk.BooleanVar(value=states.get(id, False))  # Use the saved state if it exists, otherwise default to False
-            self.task_vars.append(var)
-            checkbox = tk.Checkbutton(checklist_frame, text=summary, variable=var, bg="white", fg=colour, width=30, justify="left", anchor="w", selectcolor="white", padx=3, command=toggle, font=("Arial 15 bold"))
-            checkbox.grid(row=len(self.task_vars), column=0, sticky="nsw", padx=30, pady=5)
-
-        self.progress = ttk.Progressbar(self.main, orient="horizontal", length=458, mode="determinate", style="Green.Horizontal.TProgressbar")
-        self.progress.grid(row=3, column=0, padx=45, pady=0, sticky='nw')
-
-        toggle()
-
-
-    def construct_buttons(self):
-        file_exists_flag = file_exists(working_modules_path)
-
-        task_actions_frame = tk.Frame(self.main, width=50, height=20, bg = "white", highlightbackground="black", highlightthickness=1)
-        task_actions_frame.grid(row=1, column=1, sticky="nsw", padx=10, pady=50)
-
-        task_header = tk.Label(task_actions_frame, text="Task/Assignemnt Actions", font=("Arial", 20), bg="white", fg="black")
-        task_header.grid(row=0, column=1, padx=10, pady=10, columnspan=2)
-
-        add_button = ttk.Button(task_actions_frame, text="Add Task", style="Green.TButton", command=lambda: [self.add_task_popup(), main.iconify()], state="disabled" if not file_exists_flag else "normal")
-        add_button.grid(row=1, column=1, pady=10, sticky='w', padx=23)
-
-        edit_button = ttk.Button(task_actions_frame, text="Edit Task", style="Green.TButton", command=lambda: [self.edit_task_popup(self.events), main.iconify()], state="disabled" if not file_exists_flag else "normal")
-        edit_button.grid(row=1, column=2, pady=10, padx=9)
-
-        add_assignment_button = ttk.Button(task_actions_frame, text="Add Assignment", style="Green.TButton", command=lambda: [self.add_assignment(), main.iconify()], state="disabled" if not file_exists_flag else "normal")
-        add_assignment_button.grid(row=2, column=1, pady=10, sticky='w', padx=23)
-
-        edit_assignment_button = ttk.Button(task_actions_frame, text="Edit Assignment", style="Green.TButton", command=lambda: [self.edit_assignment(self.assignments), main.iconify()], state="disabled" if not file_exists_flag else "normal")
-        edit_assignment_button.grid(row=2, column=2, pady=10, padx=9)
-
-        delete_button = ttk.Button(task_actions_frame, text="Delete", style="Green.TButton", command=lambda: [self.delete_date(), main.iconify()])
-        delete_button.grid(row=3, column=1, pady=10, sticky='w', padx=23)
-
-        other_action_frame = tk.Frame(main, width=40, height=20, bg = "white", highlightbackground="black", highlightthickness=1)
-        other_action_frame.grid(row=2, column=1, sticky="nsw", padx=10, pady=50)
-
-        other_header = tk.Label(other_action_frame, text="Module Actions             ", font=("Arial", 20), bg="white", fg="black")
-        other_header.grid(row=0, column=1, pady=10, padx=10, columnspan=2)
-
-        add_modules_button = ttk.Button(other_action_frame, text="Add Modules", style="Green.TButton", command=lambda: [self.add_modules_popup(add_modules_button, add_button, clear_modules_button, add_assignment_button, edit_assignment_button, edit_button), main.iconify()], state="disabled" if file_exists_flag else "normal")
-        add_modules_button.grid(row=1, column=1, pady=10, sticky='w', padx=23)
-
-        clear_modules_button = ttk.Button(other_action_frame, text="Clear Modules", style="Green.TButton", command=lambda: self.clear_modules(add_modules_button, add_button, clear_modules_button, add_assignment_button, edit_assignment_button, edit_button), state="normal" if file_exists_flag else "disabled")
-        clear_modules_button.grid(row=1, column=2, pady=10, padx=25)
-
-        view_key_button = ttk.Button(other_action_frame, text="View Key", style="Green.TButton", command= lambda: [self.view_key(), main.iconify()])
-        view_key_button.grid(row=2, column=1, pady=10, sticky='w', padx=23)
-
-    # Validation functions
+    def closeEvent(self, event):
+        self.save_states()
+        super().closeEvent(event)
 
     def time_values(self):
         times = []
-        postfix = 'AM'
         for minute in range(0, 1440):
-            if minute >= 720:
-                postfix = 'PM'
-            hour = minute // 60
-            minutes = minute - (hour * 60)
-            if hour < 10:
-                hour = f'0{hour}'
-            if minutes < 10:
-                minutes = f'0{minutes}'
-            times.append(f'{hour}:{minutes} {postfix}')
-
+            moment = datetime.strptime(f"{minute // 60:02d}:{minute % 60:02d}", "%H:%M")
+            times.append(moment.strftime("%I:%M %p"))
         return times
 
-    def entry_validation(self, **kwargs):
-        for entry_name, entry_value in kwargs.items():
-            if entry_value == "" or entry_value == " ":
-                messagebox.showerror(title="Error", message=f"{entry_name} must be filled")
-                return False
+    def validate_common(self, title, module):
+        if not title.strip():
+            QMessageBox.warning(self, "Error", "Title must be filled")
+            return False
+        if not module.strip():
+            QMessageBox.warning(self, "Error", f"{self.module_label_singular()} must be selected")
+            return False
         return True
 
-    def dropdown_validation(self, dropdowns):
-        for dropdown_name, dropdown_value, dropdown_values in dropdowns:
-            if dropdown_value == "" or dropdown_value == " ":
-                messagebox.showerror(title="Error", message=f"{dropdown_name} must be selected")
-                return False
-            elif dropdown_value not in dropdown_values:
-                messagebox.showerror(title="Error", message=f"Invalid selection in {dropdown_name}")
-                return False
-            return True
-
-    def date_validation(self, date):
-        if not datetime.strptime(str(date), "%Y-%m-%d"):
-            messagebox.showinfo(title='Error', message='Date is invalid')
-            return False
-        else:
-            return True
-
-    def time_validation(self, type, selected_time):
-        if type == 'end' and selected_time == '00:00 AM':
-            messagebox.showinfo(title='Error', message='End time must be current day')
-            return False
-        all_times = self.time_values()
-        for time in all_times:
-            if time == selected_time:
-                return True
-        messagebox.showinfo(title='Error', message=f'{type} time is invalid')
-        return False
-
-    def start_end_time_validation(self, start_time, end_time):
-        stripped_start = start_time.strip(":APM ")
-        stripped_start = stripped_start.replace(":", "")
-        stripped_end = end_time.strip(":APM ")
-        stripped_end = stripped_end.replace(":", "")
-
-        if int(stripped_start) > int(stripped_end):
-            messagebox.showinfo(title='Error', message='Start time must be ealier than end time')
-            return False
-        else:
-            return True
-        
-        
-
-    def on_task_submit(self, task_id, title, module_chosen, module_dropdown, start_time, end_time, date, submit_type, popup):
-        valid = True
-
-        if not self.entry_validation(title=title):
-            valid = False
-        if not self.dropdown_validation([('module', module_chosen, module_dropdown['values'])]):
-            valid = False
-        if not self.time_validation('start', start_time) or not self.time_validation('end', end_time):
-            valid = False
-        if not self.start_end_time_validation(start_time, end_time):
-            valid = False
-        if not self.date_validation(date):
-            valid = False
-        
-        if valid:
-            if submit_type == "Add":
-                add_task(self.creds, title, module_chosen, start_time, end_time, date)
-                self.saved_states()
-                self.construct_checklist()
-                popup.destroy()
-                main.deiconify()
-            elif submit_type == "Edit":
-                edit_task(self.creds, task_id, title, module_chosen, start_time, end_time, date)
-                self.saved_states()
-                self.construct_checklist()
-                popup.destroy()
-                main.deiconify()
-
-    def on_assignment_submit(self, assignment_id, title, module_chosen, module_dropdown, due_date, due_time, submit_type, popup):
-        valid = True
-
-        if not self.entry_validation(title=title):
-            valid = False
-        if not self.dropdown_validation([("module", module_chosen, module_dropdown['values'])]):
-            valid = False
-        if not self.date_validation(due_date):
-            valid = False
-        if not self.time_validation("due", due_time):
-            valid = False
-        
-        if valid:
-            if submit_type == "Add":
-                add_assignment(self.creds, title, module_chosen, due_date, due_time)
-                self.saved_states()
-                self.construct_checklist()
-                popup.destroy()
-                main.deiconify()
-            elif submit_type == "Edit":
-                edit_assignment(self.creds, assignment_id, title, module_chosen, due_date, due_time)
-                self.saved_states()
-                self.construct_checklist()
-                popup.destroy()
-                main.deiconify()
-
-    def on_modules_submit(self, module_1, module_2, module_3, popup):
-        valid = True
-
-        if not self.entry_validation(module_1=module_1, module_2=module_2, module_3=module_3):
-            valid = False
-
-        if valid:
-            add_modules(module_1, module_2, module_3)
-            self.saved_states()
-            self.construct_checklist()
-            popup.destroy()
-            main.deiconify()
-
-
-    # Popup functions
-
-    def add_task_popup(self):
-        self.add_popup = tk.Toplevel(self.main)
-        self.add_popup.title("Add Task")
-        self.add_popup.geometry("360x430")
-        self.add_popup.configure(bg="white")
-        self.add_popup.resizable(False, False)
-        self.add_popup.protocol("WM_DELETE_WINDOW", lambda arg=self.add_popup: self.on_popup_close(arg))
-
-        header = tk.Label(self.add_popup, text= "Add Task", font=('Arial', 30), bg="white", fg="Green")
-        header.grid(row=0, column=0, pady=10, columnspan=2)
-
-        title_label = tk.Label(self.add_popup, text="Title", font=('Arial', 15), bg="white", fg="black")
-        title_label.grid(row=1, column=0, pady=15, padx=10)
-        title_entry = tk.Entry(self.add_popup, font=('Arial', 15), bg="white", fg="black")
-        title_entry.grid(row=1, column=1, pady=15, sticky='w')
-
-        module_dropdown_label = tk.Label(self.add_popup, text="Module", font=('Arial', 15), bg="white", fg="black")
-        module_dropdown_label.grid(row=2, column=0, pady=15, padx=10)
-        module_var = tk.StringVar(self.add_popup)
-        module_dropdown = ttk.Combobox(self.add_popup, width=19, textvariable=module_var)
-
-        with open(working_modules_path, 'r') as file:
-            modules = json.load(file)
-            module_dropdown['values'] = (modules['10'], modules['9'], modules['6'], modules['8'])
-
-        module_dropdown.grid(row=2, column=1, pady=15, sticky='w')
-
-        date_label = tk.Label(self.add_popup, text="Date", font=('Arial', 15), bg="white", fg="black")
-        date_label.grid(row=3, column=0, pady=15, padx=10)
-        date_chooser = DateEntry(self.add_popup, width=19, background='green', foreground='white', borderwidth=2, date_pattern='dd-mm-yyyy')
-        date_chooser.grid(row=3, column=1, pady=15, sticky='w')
-
-        start_time_label = tk.Label(self.add_popup, text="Start Time", font=('Arial', 15), bg="white", fg="black")
-        start_time_label.grid(row=4, column=0, pady=15, padx=10)
-
-        start_time_picker = tk.Spinbox(self.add_popup, values=self.time_values(), wrap=True, repeatinterval=10, font=("Arial", 15), bg='white', fg="green", width=18)
-        start_time_picker.grid(row=4, column=1, pady=15, sticky='w')
-
-        end_time_label = tk.Label(self.add_popup, text="End Time", font=('Arial', 15), bg="white", fg="black")
-        end_time_label.grid(row=5, column=0, pady=15, padx=10)
-
-        end_time_picker = tk.Spinbox(self.add_popup, values=self.time_values(), wrap=True, repeatinterval=10, font=("Arial", 15), bg='white', fg="green", width=18)
-        end_time_picker.grid(row=5, column=1, pady=15, sticky='w')
-
-        add_task_button = ttk.Button(self.add_popup, text="Add", style="Green.TButton", command=lambda: self.on_task_submit(None, title_entry.get(), module_dropdown.get(), module_dropdown, start_time_picker.get(), end_time_picker.get(), date_chooser.get_date(), "Add", self.add_popup))
-        add_task_button.grid(row=6, column=0, pady=15, columnspan=2)
-
-    def edit_task_popup(self, events):
-
-        def task_to_edit(event):
-            task = task_chosen.get()
-            task_id = next(x[0] for x in self.events if x[1] == task)
-            details = retrieve_event_details(self.creds, task_id)
-            edit_popup_specific(details, task_id)
-
-        self.edit_popup = tk.Toplevel(self.main)
-        self.edit_popup.title("Edit Task")
-        self.edit_popup.geometry("360x480")
-        self.edit_popup.configure(bg="white")
-        self.edit_popup.resizable(False, False)
-        self.edit_popup.protocol("WM_DELETE_WINDOW", lambda arg=self.edit_popup: self.on_popup_close(arg))
-        header = tk.Label(self.edit_popup, text= "Edit Task", font=('Arial', 30), bg="white", fg="Green")
-        header.grid(row=0, column=0, columnspan=2, pady=10, padx=100)
-
-        if events == []:
-            no_events_label = tk.Label(self.edit_popup, text="No tasks to edit", font=('Arial', 15), bg="white", fg="black")
-            no_events_label.grid(row=1, column=0)
-        else:
-            dropdown_label = tk.Label(self.edit_popup, text="Task", font=('Arial', 15), bg="white", fg="black")
-            dropdown_label.grid(row=1, column=0, pady=15)
-            task_var = tk.StringVar(self.edit_popup)
-            task_chosen = ttk.Combobox(self.edit_popup, width=19, textvariable=task_var)
-            task_chosen['values'] = [x[1] for x in self.events]
-            task_chosen.grid(row=1, column=1, pady=15, sticky='w')
-            task_chosen.bind("<<ComboboxSelected>>", task_to_edit)
-
-        def edit_popup_specific(details, task_id):
-            # Autofill fields with selected task details
-            title_label = tk.Label(self.edit_popup, text="Title", font=('Arial', 15), bg="white", fg="black")
-            title_label.grid(row=2, column=0, pady=15)
-            title_entry = tk.Entry(self.edit_popup, font=('Arial', 15), bg="white", fg="black")
-            title_entry.insert(0, str(details["summary"]))
-            title_entry.grid(row=2, column=1, pady=15, sticky='w')
-
-            module_dropdown_label = tk.Label(self.edit_popup, text="Module", font=('Arial', 15), bg="white", fg="black")
-            module_dropdown_label.grid(row=3, column=0, pady=15)
-            module_var = tk.StringVar(self.edit_popup)
-            module_dropdown = ttk.Combobox(self.edit_popup, width=19, textvariable=module_var)
-
-            with open(working_modules_path, "r") as f:
-                modules = json.load(f)
-                module = modules[f'{details["colorId"]}']
-                module_dropdown['values'] = (modules['10'], modules['9'], modules['6'], modules['8'])
-
-            values = module_dropdown['values']
-            index = values.index(module)
-            module_dropdown.current(index)
-            module_dropdown.grid(row=3, column=1, pady=15, sticky='w')
-
-            date_label = tk.Label(self.edit_popup, text="Date", font=('Arial', 15), bg="white", fg="black")
-            date_label.grid(row=4, column=0, pady=15)
-            date_chooser = DateEntry(self.edit_popup, width=19, background='green', foreground='white', borderwidth=2, date_pattern='yyyy-mm-dd')
-            date_chooser.delete(0, "end")
-            start_date_time = details["start"]
-            end_date_time = details["end"]
-            date_chooser.set_date(start_date_time[:-15])
-            date_chooser.grid(row=4, column=1, pady=15, sticky='w')
-
-            start_time_label = tk.Label(self.edit_popup, text="Start Time", font=('Arial', 15), bg="white", fg="black")
-            start_time_label.grid(row=5, column=0, pady=15)
-
-            all_times = self.time_values()
-
-            for time in all_times:
-                if (time[:-3]) == start_date_time[11:-9]:
-                    start_time = time
-                if (time[:-3]) == end_date_time[11:-9]:
-                    end_time = time
-
-            start_time_var = tk.StringVar(self.edit_popup)
-            start_time_picker = tk.Spinbox(self.edit_popup, values=self.time_values(), wrap=True, repeatinterval=10, font=("Arial", 15), bg='white', fg="green", width=18, textvariable=start_time_var)
-            start_time_picker.delete(0, tk.END)
-            start_time_picker.insert(0, start_time)
-            start_time_var.set(start_time)
-            start_time_picker.grid(row=5, column=1, pady=15, sticky='w')
-
-            end_time_label = tk.Label(self.edit_popup, text="End Time", font=('Arial', 15), bg="white", fg="black")
-            end_time_label.grid(row=6, column=0, pady=15)
-
-            end_time_var = tk.StringVar(self.edit_popup)
-            end_time_picker = tk.Spinbox(self.edit_popup, values=self.time_values(), wrap=True, repeatinterval=10, font=("Arial", 15), bg='white', fg="green", width=18, textvariable=end_time_var)
-            end_time_picker.delete(0, tk.END)
-            end_time_picker.insert(0, end_time)
-            end_time_var.set(end_time)
-            end_time_picker.grid(row=6, column=1, pady=15, sticky='w')
-
-            edit_task_button = ttk.Button(self.edit_popup, text="Save", style="Green.TButton", command=lambda: self.on_task_submit(task_id, title_entry.get(), module_dropdown.get(), module_dropdown, start_time_picker.get(), end_time_picker.get(), date_chooser.get_date(), "Edit", self.edit_popup))
-            edit_task_button.grid(row=7, column=0, pady=8, columnspan=2)
-
-    def delete_task_popup(self, specified_date):
-        def get_task_id(task_title):
-            for event in events:
-                if event[1] == task_title:
-                    task_id = event[0]
-            delete_task(self.creds, task_id)
-            self.saved_states()
-            self.construct_checklist()
-            main.deiconify()
-            self.delete_popup.destroy()
-            self.delete_date_popup.destroy()
-        
-        self.delete_popup = tk.Toplevel(self.main)
-        self.delete_popup.title("Delete Task/Assignment")
-        self.delete_popup.geometry("400x180")
-        self.delete_popup.configure(bg="white")
-        self.delete_popup.resizable(False, False)
-        self.delete_popup.protocol("WM_DELETE_WINDOW", lambda: [self.delete_date_popup.deiconify(), self.delete_popup.destroy()])
-        header = tk.Label(self.delete_popup, text= "Delete Task/Assignment", font=('Arial', 26), bg="white", fg="Green")
-        header.grid(row=0, column=0, columnspan=2, padx=15, pady=10)
-
-        events = get_event_by_date(self.creds, specified_date)
-        event_to_delete = True
-        for event in events:
-            if event[1] == 'No tasks/assignments to delete':
-                event_to_delete = False
-        print([x[1] for x in events])
-
-        dropdown_label = tk.Label(self.delete_popup, text="Task", font=('Arial', 15), bg="white", fg="black")
-        dropdown_label.grid(row=1, column=0, pady=15)
-        task_var = tk.StringVar(self.delete_popup)
-        task_chosen = ttk.Combobox(self.delete_popup, width=19, textvariable=task_var, state='readonly')
-        task_chosen['values'] = [x[1] for x in events]
-        task_chosen.grid(row=1, column=1, pady=15, sticky='w')
-
-        delete_task_button = ttk.Button(self.delete_popup, text="Delete", style="Green.TButton", state='disabled' if not event_to_delete else 'normal', command=lambda: get_task_id(task_chosen.get()))
-        delete_task_button.grid(row=2, column=0, columnspan=2, pady=10)
-
-
-    def delete_date(self):
-        self.delete_date_popup = tk.Toplevel(self.main)
-        self.delete_date_popup.title("Delete Task/Assignment")
-        self.delete_date_popup.geometry("400x180")
-        self.delete_date_popup.configure(bg="white")
-        self.delete_date_popup.resizable(False, False)
-        self.delete_date_popup.protocol("WM_DELETE_WINDOW", lambda arg=self.delete_date_popup: self.on_popup_close(arg))
-        header = tk.Label(self.delete_date_popup, text= "Delete Task/Assignment", font=('Arial', 26), bg="white", fg="Green")
-        header.grid(row=0, column=0, columnspan=2, padx=15, pady=10)
-
-        date_label = tk.Label(self.delete_date_popup, text="Select Date", font=('Arial', 15), bg="white", fg="black")
-        date_label.grid(row=1, column=0, pady=15)
-        date_chooser = DateEntry(self.delete_date_popup, width=19, background='green', foreground='white', borderwidth=2, date_pattern='dd-mm-yyyy')
-        date_chooser.grid(row=1, column=1, pady=15, sticky='w')
-
-        submit_date_button = ttk.Button(self.delete_date_popup, text="Continue", style="Green.TButton", command=lambda: [self.delete_task_popup(date_chooser.get_date()), self.delete_date_popup.iconify()])
-        submit_date_button.grid(row=2, column=0, columnspan=2, pady=10)
-
-    def add_assignment(self):
-        self.add_assignment_popup = tk.Toplevel(self.main)
-        self.add_assignment_popup.title("Add Assignment")
-        self.add_assignment_popup.geometry("400x360")
-        self.add_assignment_popup.configure(bg="white")
-        self.add_assignment_popup.resizable(False, False)
-        self.add_assignment_popup.protocol("WM_DELETE_WINDOW", lambda arg=self.add_assignment_popup: self.on_popup_close(arg))
-        header = tk.Label(self.add_assignment_popup, text= "Add Assignment", font=('Arial', 30), bg="white", fg="Green")
-        header.grid(row=0, column=0, padx=65, pady=10, columnspan=2)
-
-        title_label = tk.Label(self.add_assignment_popup, text="Title", font=('Arial', 15), bg="white", fg="black")
-        title_label.grid(row=1, column=0, pady=15)
-        title_entry = tk.Entry(self.add_assignment_popup, font=('Arial', 15), bg="white", fg="black")
-        title_entry.grid(row=1, column=1, pady=15, sticky='w')
-
-        module_dropdown_label = tk.Label(self.add_assignment_popup, text="Module", font=('Arial', 15), bg="white", fg="black")
-        module_dropdown_label.grid(row=2, column=0, pady=15)
-        module_var = tk.StringVar(self.add_assignment_popup)
-        module_dropdown = ttk.Combobox(self.add_assignment_popup, width=19, textvariable=module_var)
-
-        with open(working_modules_path, 'r') as file:
-            modules = json.load(file)
-            module_dropdown['values'] = (modules['10'], modules['9'], modules['6'], modules['8'])
-
-        module_dropdown.grid(row=2, column=1, pady=15, sticky='w')
-
-        date_label = tk.Label(self.add_assignment_popup, text="Date Due", font=('Arial', 15), bg="white", fg="black")
-        date_label.grid(row=3, column=0, pady=15)
-        date_chooser = DateEntry(self.add_assignment_popup, width=19, background='green', foreground='white', borderwidth=2, date_pattern='dd-mm-yyyy')
-        date_chooser.grid(row=3, column=1, pady=15, sticky='w')
-
-        time_label = tk.Label(self.add_assignment_popup, text="Time Due", font=('Arial', 15), bg="white", fg="black")
-        time_label.grid(row=4, column=0, pady=15)
-
-        time_picker = tk.Spinbox(self.add_assignment_popup, values=self.time_values(), wrap=True, repeatinterval=10, font=("Arial", 15), bg='white', fg="green", width=18)
-        time_picker.grid(row=4, column=1, pady=15, sticky='w')
-
-        add_assignment_button = ttk.Button(self.add_assignment_popup, text="Add", style="Green.TButton", command=lambda: self.on_assignment_submit(None, title_entry.get(), module_dropdown.get(), module_dropdown, date_chooser.get_date(), time_picker.get(), "Add", self.add_assignment_popup))
-        add_assignment_button.grid(row=5, column=0, columnspan=2, pady=10)
-
-    def edit_assignment(self, assignments):
-        def assignment_to_edit(event):
-            assignment = assignment_chosen.get()
-            assignment_id = next(x[0] for x in self.assignments if x[1] == assignment)
-            details = retrieve_assignment_details(self.creds, assignment_id)
-            edit_popup_specific(details, assignment_id)
-
-        self.edit_assignment_popup = tk.Toplevel(self.main)
-        self.edit_assignment_popup.title("Edit Assignment")
-        self.edit_assignment_popup.geometry("400x420")
-        self.edit_assignment_popup.configure(bg="white")
-        self.edit_assignment_popup.resizable(False, False)
-        self.edit_assignment_popup.protocol("WM_DELETE_WINDOW", lambda arg=self.edit_assignment_popup: self.on_popup_close(arg))
-        header = tk.Label(self.edit_assignment_popup, text= "Edit Assignment", font=('Arial', 30), bg="white", fg="Green")
-        header.grid(row=0, column=0, columnspan=2, padx=70, pady=10)
-
-        if assignments == []:
-            no_events_label = tk.Label(self.edit_assignment_popup, text="No assignments to edit", font=('Arial', 15), bg="white", fg="black")
-            no_events_label.grid(row=1, column=0, columnspan=2)
-        else:
-            dropdown_label = tk.Label(self.edit_assignment_popup, text="Assignment", font=('Arial', 15), bg="white", fg="black")
-            dropdown_label.grid(row=1, column=0, pady=15)
-            assignment_var = tk.StringVar(self.edit_assignment_popup)
-            assignment_chosen = ttk.Combobox(self.edit_assignment_popup, width=19, textvariable=assignment_var)
-            assignment_chosen['values'] = [x[1] for x in self.assignments]
-            assignment_chosen.grid(row=1, column=1, pady=15, sticky='w')
-            assignment_chosen.bind("<<ComboboxSelected>>", assignment_to_edit)
-
-        def edit_popup_specific(details, assignment_id):
-            title_label = tk.Label(self.edit_assignment_popup, text="Title", font=('Arial', 15), bg="white", fg="black")
-            title_label.grid(row=2, column=0, pady=15)
-            title_entry = tk.Entry(self.edit_assignment_popup, font=('Arial', 15), bg="white", fg="black")
-            title_entry.insert(0, str(details["summary"]))
-            title_entry.grid(row=2, column=1, pady=15, sticky='w')
-
-            module_dropdown_label = tk.Label(self.edit_assignment_popup, text="Module", font=('Arial', 15), bg="white", fg="black")
-            module_dropdown_label.grid(row=3, column=0, pady=15)
-            module_var = tk.StringVar(self.edit_assignment_popup)
-            module_dropdown = ttk.Combobox(self.edit_assignment_popup, width=19, textvariable=module_var)
-            with open(working_modules_path, "r") as f:
-                modules = json.load(f)
-                module = modules[f'{details["colorId"]}']
-                module_dropdown['values'] = (modules['10'], modules['9'], modules['6'], modules['8'])
-
-            values = module_dropdown['values']
-            index = values.index(module)
-            module_dropdown.current(index)
-            module_dropdown.grid(row=3, column=1, pady=15, sticky='w')
-
-            due_date_label = tk.Label(self.edit_assignment_popup, text="Date Due", font=('Arial', 15), bg="white", fg="black")
-            due_date_label.grid(row=4, column=0, pady=15)
-            due_date_chooser = DateEntry(self.edit_assignment_popup, width=19, background='green', foreground='white', borderwidth=2, date_pattern='yyyy-mm-dd')
-            due_date_chooser.delete(0, "end")
-            due_date_time = details["start"]
-            due_date_chooser.set_date(due_date_time[:-15])
-            due_date_chooser.grid(row=4, column=1, pady=15, sticky='w')
-
-            due_time_label = tk.Label(self.edit_assignment_popup, text="Time Due", font=('Arial', 15), bg="white", fg="black")
-            due_time_label.grid(row=5, column=0, pady=15)
-
-            all_times = self.time_values()
-
-            for time in all_times:
-                if (time[:-3]) == due_date_time[11:-9]:
-                    due_time = time
-
-            due_time_var = tk.StringVar(self.edit_assignment_popup)
-            due_time_picker = tk.Spinbox(self.edit_assignment_popup, values=self.time_values(), wrap=True, repeatinterval=10, font=("Arial", 15), bg='white', fg="green", width=18, textvariable=due_time_var)
-            due_time_picker.delete(0, tk.END)
-            due_time_picker.insert(0, due_time)
-            due_time_var.set(due_time)
-            due_time_picker.grid(row=5, column=1, pady=15, sticky='w')
-
-            edit_assignment_button = ttk.Button(self.edit_assignment_popup, text="Save", style="Green.TButton", command=lambda: self.on_assignment_submit(assignment_id, title_entry.get(), module_dropdown.get(), module_dropdown, due_date_chooser.get_date(), due_time_picker.get(), "Edit", self.edit_assignment_popup))
-            edit_assignment_button.grid(row=7, column=0, pady=8, columnspan=2)
-
-
-    def view_key(self):
-        self.key_popup = tk.Toplevel(self.main)
-        self.key_popup.title("View Key")
-        self.key_popup.geometry("400x450")
-        self.key_popup.configure(bg="white")
-        self.key_popup.resizable(False, False)
-        self.key_popup.protocol("WM_DELETE_WINDOW", lambda arg=self.key_popup: self.on_popup_close(arg))
-        header = tk.Label(self.key_popup, text= "Key", font=('Arial', 30), bg="white", fg="Green")
-        header.grid(row=0, column=0, padx=170, pady=10)
-
-        modules_frame = tk.Frame(self.key_popup, width=30, height=20, bg="white", highlightbackground="green", highlightthickness=1)
-        modules_frame.grid(row=1, column=0, pady=15)
-
-        i = 0
-        if file_exists(working_modules_path):
-            with open(working_modules_path, 'r') as file:
-                modules_data = json.load(file)
-                for module in modules_data.values():
-                    module_label = tk.Label(modules_frame, text=module, font=('Arial', 15), bg="white", fg="black")
-                    module_label.grid(row=i, column=0, padx=30, pady=20)
-                    i += 1
-                
-                canvas = tk.Canvas(modules_frame, width=70, height=300, bg="white", highlightbackground="white", highlightthickness=1)
-                canvas.grid(row=0, column=1, padx=20, pady=20, rowspan=4)
-        
-                # Draw ovals at different Y positions within the canvas
-                canvas.create_oval(10, 15, 30, 35, fill="green", outline="dark green") 
-                canvas.create_oval(10, 100, 30, 120, fill="blue", outline="blue")     
-                canvas.create_oval(10, 185, 30, 205, fill="orange", outline="orange")
-                canvas.create_oval(10, 270, 30, 290, fill="grey", outline="grey")
-
-        else:
-            no_modules_label = tk.Label(modules_frame, text="No modules added", font=('Arial', 15), bg="white", fg="black")
-            no_modules_label.grid(row=0, column=0, padx=30, pady=20)
-
-
-
-
-
-    def add_modules_popup(self, button_to_disable, button_to_enable_1, button_to_enable_2, button_to_enable_3, button_to_enable_4, button_to_enable_5):
-
-        self.modules_popup = tk.Toplevel(self.main)
-        self.modules_popup.title("Add Modules")
-        self.modules_popup.geometry("400x325")
-        self.modules_popup.configure(bg="white")
-        self.modules_popup.resizable(False, False)
-        self.modules_popup.protocol("WM_DELETE_WINDOW", lambda arg=self.modules_popup: self.on_popup_close(arg))
-        header = tk.Label(self.modules_popup, text= "Add Modules", font=('Arial', 30), bg="white", fg="Green")
-        header.grid(row=0, column=0, padx=90, pady=10, columnspan=2)
-
-        module_1_label = tk.Label(self.modules_popup, text="Module 1", font=('Arial', 15), bg="white", fg="black")
-        module_1_label.grid(row=1, column=0, pady=15)
-        module_1_entry = tk.Entry(self.modules_popup, font=('Arial', 15), bg="white", fg="black")
-        module_1_entry.grid(row=1, column=1, pady=15, sticky='w')
-
-        module_2_label = tk.Label(self.modules_popup, text="Module 2", font=('Arial', 15), bg="white", fg="black")
-        module_2_label.grid(row=2, column=0, pady=15)
-        module_2_entry = tk.Entry(self.modules_popup, font=('Arial', 15), bg="white", fg="black")
-        module_2_entry.grid(row=2, column=1, pady=15, sticky='w')
-
-        module_3_label = tk.Label(self.modules_popup, text="Module 3", font=('Arial', 15), bg="white", fg="black")
-        module_3_label.grid(row=3, column=0, pady=15)
-        module_3_entry = tk.Entry(self.modules_popup, font=('Arial', 15), bg="white", fg="black")
-        module_3_entry.grid(row=3, column=1, pady=15, sticky='w')
-
-        def save_modules():
-            self.on_modules_submit(module_1_entry.get(), module_2_entry.get(), module_3_entry.get(), self.modules_popup)
-            button_to_disable.config(state="disabled")
-            button_to_enable_1.config(state="normal")
-            button_to_enable_2.config(state="normal")
-            button_to_enable_3.config(state="normal")
-            button_to_enable_4.config(state="normal")
-            button_to_enable_5.config(state="normal")
-
-        add_modules_button = ttk.Button(self.modules_popup, text="Save", style="Green.TButton", command=save_modules)
-        add_modules_button.grid(row=4, column=0, pady=15, columnspan=2)
-
-    def clear_modules(self, button_to_enable, button_to_disable_1, button_to_disable_2, button_to_disable_3, button_to_disable_4, button_to_disable_5):
+    def open_add_task_dialog(self):
+        dialog = TaskDialog(self, "Add Task")
+        if dialog.exec_() == QDialog.Accepted:
+            title, module, date_text, start_text, end_text = dialog.values()
+            if not self.validate_common(title, module):
+                return
+            if datetime.strptime(start_text, "%I:%M %p") > datetime.strptime(end_text, "%I:%M %p"):
+                QMessageBox.warning(self, "Error", "Start time must be earlier than end time")
+                return
+            add_task(self.creds, title, module, start_text, end_text, date_text)
+            self.save_states()
+            self.refresh_dashboard()
+
+    def open_edit_task_dialog(self):
+        if self.is_placeholder_tasks():
+            QMessageBox.information(self, "Edit Task", "No tasks to edit.")
+            return
+
+        chooser = ItemChooserDialog(self, "Edit Task", [summary for _, summary, _ in self.events], "Choose a task")
+        if chooser.exec_() != QDialog.Accepted:
+            return
+
+        summary = chooser.selected_text()
+        task_id = next(event_id for event_id, text, _ in self.events if text == summary)
+        details = retrieve_event_details(self.creds, task_id)
+        dialog = TaskDialog(self, "Edit Task", details)
+        if dialog.exec_() == QDialog.Accepted:
+            title, module, date_text, start_text, end_text = dialog.values()
+            if not self.validate_common(title, module):
+                return
+            if datetime.strptime(start_text, "%I:%M %p") > datetime.strptime(end_text, "%I:%M %p"):
+                QMessageBox.warning(self, "Error", "Start time must be earlier than end time")
+                return
+            edit_task(self.creds, task_id, title, module, start_text, end_text, date_text)
+            self.save_states()
+            self.refresh_dashboard()
+
+    def open_add_deadline_dialog(self):
+        dialog = DeadlineDialog(self, "Add Deadline")
+        if dialog.exec_() == QDialog.Accepted:
+            title, module, due_date, due_time = dialog.values()
+            if not self.validate_common(title, module):
+                return
+            add_deadline(self.creds, title, module, due_date, due_time)
+            self.save_states()
+            self.refresh_dashboard()
+
+    def open_edit_deadline_dialog(self):
+        if len(self.deadlines) == 1 and self.deadlines[0][1] == "No deadlines":
+            QMessageBox.information(self, "Edit Deadline", "No deadlines to edit.")
+            return
+
+        chooser = ItemChooserDialog(self, "Edit Deadline", [summary for _, summary, _ in self.deadlines], "Choose a deadline")
+        if chooser.exec_() != QDialog.Accepted:
+            return
+
+        summary = chooser.selected_text()
+        deadline_id = next(item_id for item_id, text, _ in self.deadlines if text == summary)
+        details = retrieve_deadline_details(self.creds, deadline_id)
+        dialog = DeadlineDialog(self, "Edit Deadline", details)
+        if dialog.exec_() == QDialog.Accepted:
+            title, module, due_date, due_time = dialog.values()
+            if not self.validate_common(title, module):
+                return
+            edit_deadline(self.creds, deadline_id, title, module, due_date, due_time)
+            self.save_states()
+            self.refresh_dashboard()
+
+    def open_delete_dialog(self):
+        dialog = DeleteDialog(self)
+        if dialog.exec_() != QDialog.Accepted:
+            return
+
+        chosen_date = dialog.selected_date()
+        items = get_event_by_date(self.creds, chosen_date)
+        if len(items) == 1 and items[0][1] == "No tasks/deadlines to delete":
+            QMessageBox.information(self, "Delete Item", "No tasks or deadlines to delete for that date.")
+            return
+
+        chooser = ItemChooserDialog(self, "Delete Item", [summary for _, summary in items], "Choose an item to delete")
+        if chooser.exec_() != QDialog.Accepted:
+            return
+
+        summary = chooser.selected_text()
+        task_id = next(item_id for item_id, text in items if text == summary)
+        delete_task(self.creds, task_id)
+        self.save_states()
+        self.refresh_dashboard()
+
+    def open_modules_dialog(self):
+        dialog = ModulesDialog(self, self.module_label_singular(), self.module_label_plural())
+        if dialog.exec_() == QDialog.Accepted:
+            modules = dialog.values()
+            if not all(text.strip() for text in modules):
+                QMessageBox.warning(self, "Error", f"All {self.module_label_singular().lower()} fields must be filled")
+                return
+            add_modules(modules)
+            self.refresh_dashboard()
+
+    def open_edit_modules_dialog(self):
+        if not file_exists(working_modules_path):
+            QMessageBox.information(self, f"Edit {self.module_label_plural()}", f"No {self.module_label_plural().lower()} added yet.")
+            return
+
+        with open(working_modules_path, "r") as file:
+            modules_data = json.load(file)
+
+        dialog = ModulesDialog(self, self.module_label_singular(), self.module_label_plural(), modules_data)
+        if dialog.exec_() == QDialog.Accepted:
+            modules = dialog.values()
+            if not all(text.strip() for text in modules):
+                QMessageBox.warning(self, "Error", f"All {self.module_label_singular().lower()} fields must be filled")
+                return
+            add_modules(modules)
+            self.refresh_dashboard()
+
+    def clear_modules(self):
         if file_exists(working_modules_path):
             os.remove(working_modules_path)
+            self.refresh_dashboard()
         else:
-            messagebox.showerror(title='Error', message='There are no modules to delete')
+            QMessageBox.warning(self, "Error", f"There are no {self.module_label_plural().lower()} to delete")
 
-        button_to_disable_1.config(state="disabled")
-        button_to_disable_2.config(state="disabled")
-        button_to_disable_3.config(state="disabled")
-        button_to_disable_4.config(state="disabled")
-        button_to_disable_5.config(state="disabled")
-        button_to_enable.config(state="normal")
+    def open_key_dialog(self):
+        if not file_exists(working_modules_path):
+            QMessageBox.information(self, f"{self.module_label_singular()} Key", f"No {self.module_label_plural().lower()} added yet.")
+            return
+        with open(working_modules_path, "r") as file:
+            modules_data = json.load(file)
+        dialog = KeyDialog(self, modules_data, self.MODULE_COLOURS, self.module_label_singular())
+        dialog.exec_()
 
-    # On close functions
 
-    def saved_states(self):
-        """
-        Function to save the state of the main window when it is closed.
-        """
+class BaseDialog(QDialog):
+    def __init__(self, parent, title):
+        super().__init__(parent)
+        self.setWindowTitle(title)
+        self.setModal(True)
+        self.resize(430, 320)
+        self.setStyleSheet(APP_STYLE)
+        self.layout = QVBoxLayout(self)
+        self.layout.setContentsMargins(24, 24, 24, 24)
+        self.layout.setSpacing(16)
 
-        with open(working_checkbox_path, 'w') as file:
-            states = {id : var.get() for id, var in zip([x[0] for x in self.events], self.task_vars)} # Pairs the summary with the variable, allowing to iterate through the lists simultaneously.
-            json.dump(states, file)
+        title_label = QLabel(title)
+        title_label.setProperty("role", "sectionTitle")
+        self.layout.addWidget(title_label)
 
-    def on_main_close(self):
-        """
-        Function to handle the close event of the main window.
-        """
-        self.saved_states()
-        main.destroy()
-    
-    def on_popup_close(self, popup):
-        """
-        Function to handle the close event of a popup window.
-        """
-        self.saved_states()
-        popup.destroy()
-        main.deiconify()
 
-if __name__ == '__main__':
-    main = tk.Tk()
-    app = StudentPlannerApp(main)
-    main.protocol("WM_DELETE_WINDOW", app.on_main_close)  # Set the close event handler
-    main.mainloop()
+class TaskDialog(BaseDialog):
+    def __init__(self, parent, title, details=None):
+        super().__init__(parent, title)
+        self.resize(460, 420)
+        module_label = parent.module_label_singular()
 
+        self.title_input = QLineEdit()
+        self.module_input = QComboBox()
+        self.module_input.setEditable(False)
+        self.date_input = QDateEdit()
+        self.date_input.setCalendarPopup(True)
+        self.time_start = QTimeEdit()
+        self.time_end = QTimeEdit()
+
+        self.populate_modules()
+        self.time_start.setDisplayFormat("hh:mm AP")
+        self.time_end.setDisplayFormat("hh:mm AP")
+        self.date_input.setDisplayFormat("dd MMM yyyy")
+        self.time_start.setTime(QTime.currentTime())
+        self.time_end.setTime(QTime.currentTime().addSecs(3600))
+        self.date_input.setDate(QDate.currentDate())
+
+        form = QGridLayout()
+        form.setHorizontalSpacing(12)
+        form.setVerticalSpacing(12)
+        form.addWidget(QLabel("Title"), 0, 0)
+        form.addWidget(self.title_input, 0, 1)
+        form.addWidget(QLabel(module_label), 1, 0)
+        form.addWidget(self.module_input, 1, 1)
+        form.addWidget(QLabel("Date"), 2, 0)
+        form.addWidget(self.date_input, 2, 1)
+        form.addWidget(QLabel("Start"), 3, 0)
+        form.addWidget(self.time_start, 3, 1)
+        form.addWidget(QLabel("End"), 4, 0)
+        form.addWidget(self.time_end, 4, 1)
+        self.layout.addLayout(form)
+
+        if details:
+            self.title_input.setText(details["summary"])
+            self.select_module(details["colorId"])
+            start_dt = datetime.fromisoformat(details["start"])
+            end_dt = datetime.fromisoformat(details["end"])
+            self.date_input.setDate(QDate(start_dt.year, start_dt.month, start_dt.day))
+            self.time_start.setTime(QTime(start_dt.hour, start_dt.minute))
+            self.time_end.setTime(QTime(end_dt.hour, end_dt.minute))
+
+        buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        buttons.accepted.connect(self.accept)
+        buttons.rejected.connect(self.reject)
+        self.layout.addWidget(buttons)
+
+    def populate_modules(self):
+        self.module_input.clear()
+        if file_exists(working_modules_path):
+            with open(working_modules_path, "r") as file:
+                modules = json.load(file)
+            self.module_input.addItems(list(modules.values()))
+
+    def select_module(self, colour_id):
+        if file_exists(working_modules_path):
+            with open(working_modules_path, "r") as file:
+                modules = json.load(file)
+            module = modules.get(str(colour_id), modules.get("8", "General"))
+            index = self.module_input.findText(module)
+            if index >= 0:
+                self.module_input.setCurrentIndex(index)
+
+    def values(self):
+        return (
+            self.title_input.text(),
+            self.module_input.currentText(),
+            self.date_input.date().toString("yyyy-MM-dd"),
+            self.time_start.time().toString("hh:mm AP"),
+            self.time_end.time().toString("hh:mm AP"),
+        )
+
+
+class DeadlineDialog(BaseDialog):
+    def __init__(self, parent, title, details=None):
+        super().__init__(parent, title)
+        self.resize(460, 360)
+        module_label = parent.module_label_singular()
+
+        self.title_input = QLineEdit()
+        self.module_input = QComboBox()
+        self.module_input.setEditable(False)
+        self.date_input = QDateEdit()
+        self.time_input = QTimeEdit()
+
+        self.populate_modules()
+        self.date_input.setCalendarPopup(True)
+        self.date_input.setDisplayFormat("dd MMM yyyy")
+        self.time_input.setDisplayFormat("hh:mm AP")
+        self.date_input.setDate(QDate.currentDate())
+        self.time_input.setTime(QTime.currentTime())
+
+        form = QGridLayout()
+        form.setHorizontalSpacing(12)
+        form.setVerticalSpacing(12)
+        form.addWidget(QLabel("Title"), 0, 0)
+        form.addWidget(self.title_input, 0, 1)
+        form.addWidget(QLabel(module_label), 1, 0)
+        form.addWidget(self.module_input, 1, 1)
+        form.addWidget(QLabel("Date Due"), 2, 0)
+        form.addWidget(self.date_input, 2, 1)
+        form.addWidget(QLabel("Time Due"), 3, 0)
+        form.addWidget(self.time_input, 3, 1)
+        self.layout.addLayout(form)
+
+        if details:
+            self.title_input.setText(details["summary"])
+            self.select_module(details["colorId"])
+            due_dt = datetime.fromisoformat(details["start"])
+            self.date_input.setDate(QDate(due_dt.year, due_dt.month, due_dt.day))
+            self.time_input.setTime(QTime(due_dt.hour, due_dt.minute))
+
+        buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        buttons.accepted.connect(self.accept)
+        buttons.rejected.connect(self.reject)
+        self.layout.addWidget(buttons)
+
+    def populate_modules(self):
+        self.module_input.clear()
+        if file_exists(working_modules_path):
+            with open(working_modules_path, "r") as file:
+                modules = json.load(file)
+            self.module_input.addItems(list(modules.values()))
+
+    def select_module(self, colour_id):
+        if file_exists(working_modules_path):
+            with open(working_modules_path, "r") as file:
+                modules = json.load(file)
+            module = modules.get(str(colour_id), modules.get("8", "General"))
+            index = self.module_input.findText(module)
+            if index >= 0:
+                self.module_input.setCurrentIndex(index)
+
+    def values(self):
+        return (
+            self.title_input.text(),
+            self.module_input.currentText(),
+            self.date_input.date().toString("yyyy-MM-dd"),
+            self.time_input.time().toString("hh:mm AP"),
+        )
+
+
+class ModulesDialog(BaseDialog):
+    MODULE_COLOUR_IDS = ["10", "9", "6", "11", "5", "4", "3", "2", "1", "7"]
+
+    def __init__(self, parent, label_singular, label_plural, modules=None):
+        super().__init__(parent, f"{'Edit' if modules else 'Add'} {label_plural}")
+        self.resize(460, 560)
+        self.label_singular = label_singular
+        self.inputs = []
+        self.existing_values = []
+        if modules:
+            self.existing_values = [
+                modules[colour_id]
+                for colour_id in self.MODULE_COLOUR_IDS
+                if colour_id in modules
+            ]
+
+        count_row = QHBoxLayout()
+        count_label = QLabel(f"Number of {label_plural.lower()}")
+        self.count_input = QSpinBox()
+        self.count_input.setRange(1, len(self.MODULE_COLOUR_IDS))
+        self.count_input.setValue(max(1, len(self.existing_values) or 3))
+        self.count_input.valueChanged.connect(self.rebuild_inputs)
+        count_row.addWidget(count_label)
+        count_row.addStretch(1)
+        count_row.addWidget(self.count_input)
+        self.layout.addLayout(count_row)
+
+        helper_label = QLabel('"General" is included as a default category.')
+        helper_label.setProperty("role", "sectionBody")
+        helper_label.setWordWrap(True)
+        self.layout.addWidget(helper_label)
+
+        self.form = QGridLayout()
+        self.form.setHorizontalSpacing(12)
+        self.form.setVerticalSpacing(12)
+        self.layout.addLayout(self.form)
+        self.rebuild_inputs(self.count_input.value())
+
+        buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        buttons.accepted.connect(self.accept)
+        buttons.rejected.connect(self.reject)
+        self.layout.addWidget(buttons)
+
+    def rebuild_inputs(self, count):
+        current_values = [widget.text() for widget in self.inputs]
+        while self.form.count():
+            item = self.form.takeAt(0)
+            widget = item.widget()
+            if widget is not None:
+                widget.deleteLater()
+
+        self.inputs = []
+        for index in range(count):
+            widget = QLineEdit()
+            if index < len(current_values):
+                widget.setText(current_values[index])
+            elif index < len(self.existing_values):
+                widget.setText(self.existing_values[index])
+
+            self.inputs.append(widget)
+            self.form.addWidget(QLabel(f"{self.label_singular} {index + 1}"), index, 0)
+            self.form.addWidget(widget, index, 1)
+
+    def values(self):
+        return [widget.text() for widget in self.inputs]
+
+
+class DeleteDialog(BaseDialog):
+    def __init__(self, parent):
+        super().__init__(parent, "Choose a Date")
+        self.resize(380, 220)
+        self.date_input = QDateEdit()
+        self.date_input.setCalendarPopup(True)
+        self.date_input.setDisplayFormat("dd MMM yyyy")
+        self.date_input.setDate(QDate.currentDate())
+        self.layout.addWidget(self.date_input)
+
+        buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        buttons.accepted.connect(self.accept)
+        buttons.rejected.connect(self.reject)
+        self.layout.addWidget(buttons)
+
+    def selected_date(self):
+        return self.date_input.date().toPyDate()
+
+
+class ItemChooserDialog(BaseDialog):
+    def __init__(self, parent, title, items, helper):
+        super().__init__(parent, title)
+        self.resize(420, 340)
+        helper_label = QLabel(helper)
+        helper_label.setProperty("role", "sectionBody")
+        self.layout.addWidget(helper_label)
+
+        self.list_widget = QListWidget()
+        self.list_widget.addItems(items)
+        if items:
+            self.list_widget.setCurrentRow(0)
+        self.layout.addWidget(self.list_widget)
+
+        buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        buttons.accepted.connect(self.accept)
+        buttons.rejected.connect(self.reject)
+        self.layout.addWidget(buttons)
+
+    def selected_text(self):
+        item = self.list_widget.currentItem()
+        return item.text() if item else ""
+
+
+class KeyDialog(BaseDialog):
+    def __init__(self, parent, modules, colours, label_singular):
+        super().__init__(parent, f"{label_singular} Key")
+        self.resize(380, 320)
+        for key, module in modules.items():
+            row = QWidget()
+            layout = QHBoxLayout(row)
+            layout.setContentsMargins(0, 0, 0, 0)
+            layout.setSpacing(10)
+            dot = QLabel()
+            dot.setFixedSize(14, 14)
+            dot.setStyleSheet(f"background: {colours.get(key, '#3C8D65')}; border-radius: 7px;")
+            label = QLabel(module)
+            label.setStyleSheet("font-size: 13px; font-weight: 700;")
+            layout.addWidget(dot)
+            layout.addWidget(label)
+            layout.addStretch(1)
+            self.layout.addWidget(row)
+
+        buttons = QDialogButtonBox(QDialogButtonBox.Close)
+        buttons.rejected.connect(self.reject)
+        buttons.accepted.connect(self.accept)
+        self.layout.addWidget(buttons)
+
+
+if __name__ == "__main__":
+    app = QApplication([])
+    app.setFont(QFont("Avenir Next", 11))
+    window = PlannerWindow()
+    window.show()
+    app.exec_()

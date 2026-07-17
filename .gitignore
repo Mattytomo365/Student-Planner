@@ -1,10 +1,24 @@
-__pycache__/
-*.pyc
-
+# Virtual environments
 venv/
+.venv/
 
+# Python
+__pycache__/
+*.py[cod]
+
+# OAuth credentials and user tokens
+credentials.json
+token.json
+
+# User-specific application data
+checkbox_states.json
+reminder.json
+modules.json
+
+# PyInstaller output
 build/
 dist/
-*.spec
 
+# Operating-system files
 .DS_Store
+Thumbs.db
