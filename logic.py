@@ -16,17 +16,18 @@ else:
     base_dir = os.path.dirname(os.path.abspath(__file__))
 
 # Path to bundled (read-only) json files
-bundled_checkbox__path = os.path.join(base_dir, 'checkbox_states.json')
-bundled_reminder__path = os.path.join(base_dir, 'reminder.json')
+bundled_checkbox_path = os.path.join(base_dir, 'checkbox_states.json')
+bundled_reminder_path = os.path.join(base_dir, 'reminder.json')
+bundled_modules_path = os.path.join(base_dir, 'modules.json')
 bundled_credentials_path = os.path.join(base_dir, 'credentials.json')
 
 
 # Path to working (writable) json files in App Data
 if getattr(sys, 'frozen', False):
     if os.name == "nt":
-        working_dir = os.path.join(os.getenv('APPDATA'), 'StudentPlanner')
+        working_dir = os.path.join(os.getenv('APPDATA'), 'DesktopPlanner')
     elif os.name == "posix":
-        working_dir = os.path.join(os.path.expanduser('~/Library/Application Support'), 'StudentPlanner')
+        working_dir = os.path.join(os.path.expanduser('~/Library/Application Support'), 'DesktopPlanner')
         
     os.makedirs(working_dir, exist_ok=True)
 else:
@@ -42,10 +43,13 @@ deadline_search_terms = ("deadline", "assign" + "ment")
 
 # If working jsons doesn't exist, copy from bundled json files
 if not os.path.exists(working_checkbox_path):
-    shutil.copyfile(bundled_checkbox__path, working_checkbox_path)
+    shutil.copyfile(bundled_checkbox_path, working_checkbox_path)
 
 if not os.path.exists(working_reminder_path):
-    shutil.copyfile(bundled_reminder__path, working_reminder_path)
+    shutil.copyfile(bundled_reminder_path, working_reminder_path)
+
+if not os.path.exists(working_modules_path):
+    shutil.copyfile(bundled_modules_path, working_modules_path)
 
 
 def file_exists(path):
